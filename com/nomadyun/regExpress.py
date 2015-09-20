@@ -5,6 +5,19 @@ Created on 2014年10月9日
 @author: nomadyun
 '''
 import re
+line = 'stream-01-31/247.ts'
+p_ts = re.compile(r'(.*)/(.*.ts)')
+match = p_ts.search(line)
+if match:
+    print match.group()
+    print match.group(1)
+    print match.group(2)
+else:
+    print 'NOT match'
+print '\n'
+
+
+
 #case 1:
 patten = re.compile(r'world')
 match = patten.search('hello worlddd')
