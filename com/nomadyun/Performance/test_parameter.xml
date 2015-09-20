@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Parameter name="define parameter">
+  <launchParams>
+    <variable name="targetBuildPath" value="//fs/Development/Build/main/daily/latest/windows/app/debug/EricssonBrowserPlugin.msi" />
+    <variable name="targetSampler" value="file:///C:/Users/huang_yun/Desktop/SamplePlayer/Sample/window/SamplePlayer.html" />
+    <variable name="dll_vompEngn" value="//fs/Development/Build/main/daily/latest/windows/lib/debug/vompEngn.Dll" />
+    <variable name="dll_voPlugInIE" value="//fs/Development/Build/main/daily/latest/windows/lib/debug/voPlugInIE.dll" />
+    <variable name="dll_voOSPlayer" value="//fs/Development/Build/main/daily/latest/windows/lib/debug/voOSPlayer.dll" />
+    <variable name="volog" value="//fs/Temp/HuangYun/AutoTest/volog.cfg"/>
+    <variable name="log_location" value="C:/ProgramData/VisualOn/BrowserPlugin/volog.log"/>
+  </launchParams>
+  <case name="fps">
+    <playermode name="full screen" enable="no">
+      <browser name="browser type">
+        <variable name="IE" enable="yes" />
+        <variable name="Chrome" enable="yes" />
+        <variable name="FireFox" enable="yes" />
+        <variable name="Safari" enable="no" />
+      </browser>
+	   
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_BL_640x480_500k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_BL_640x480_800k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_MP_1280x720_1000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_MP_1280x720_2000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+	  <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_MP_1280x720_3000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_MP_1280x720_4000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_MP_1280x720_5000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_MP_1920x1080_4000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>	 
+	  <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_MP_1920x1080_5000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_MP_1920x1080_6000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_MP_1920x1080_7000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h264_MP_1920x1080_8000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+	  <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_720x480_500k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_720x480_800k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1280x720_1000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1280x720_2000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+	  <DRM_Server name="NULL">
+		<testclip name="F:/Performance/fps/h265_MP_1280x720_3000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1280x720_4000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1280x720_5000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1280x720_6000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+       <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1280x720_7000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1920x1080_1000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1920x1080_2000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1920x1080_3000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>   
+	  <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1920x1080_4000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1920x1080_5000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1920x1080_6000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="NULL">
+        <testclip name="F:/Performance/fps/h265_MP_1920x1080_7000k_30f.mp4" scenario="NULL" restart="yes" interval="30" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server> 
+    </playermode>
+  </case>
+  
+  
+  <case name="kpi">
+    <playermode name="full screen" enable="no">
+      <browser name="browser type">
+        <variable name="IE" enable="no" />
+        <variable name="Chrome" enable="no" />
+        <variable name="FireFox" enable="no" />
+        <variable name="Safari" enable="no" />
+      </browser>
+      <DRM_Server name="10.170.78.40:80">
+        <testclip name="http://10.170.78.167/webdav/content/E_MAS_PC_NOLOGO_live/index.m3u8" scenario="Play Live TV" restart="no" interval="15" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="10.170.78.40:80">
+        <testclip name="http://10.170.78.167/webdav/content/E_MAS_PC_NOLOGO_live/index.m3u8" scenario="Zapping Live TV" restart="no" interval="15" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="10.170.78.40:80">
+        <testclip name="http://10.170.78.167/webdav/vods/E_MAS_PC_NOLOGO/index.m3u8" scenario="Play VOD" restart="yes" interval="15" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="10.170.78.40:80">
+        <testclip name="http://10.170.78.167/webdav/vods/E_MAS_PC_NOLOGO/index.m3u8" scenario="Seek in VOD" restart="no" interval="15" seekforward="480000" seekbackward="480000" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="10.170.78.40:80">
+        <testclip name="http://10.170.78.167/webdav/vods/E_MAS_PC_NOLOGO/index.m3u8" scenario="Set Audio in VOD" restart="no" interval="0" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="10.170.78.40:80">
+        <testclip name="http://10.170.78.167/webdav/vods/E_MAS_PC_NOLOGO/index.m3u8" scenario="Set Subtitle in VOD" restart="no" interval="15" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="10.170.78.40:80">
+        <testclip name="http://10.170.78.167/webdav/vods/E_MAS_PC_NOLOGO/index.m3u8" scenario="Play VOD from bookmark" restart="yes" interval="15" seekforward="0" seekbackward="0" bookmark="480000" />
+      </DRM_Server>
+      <DRM_Server name="10.170.78.40:80">
+        <testclip name="http://10.170.78.167/webdav/content/E_MAS_PC_NOLOGO_nts/index.m3u8" scenario="Set Audio in NTS" restart="no" interval="15" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="10.170.78.40:80">
+        <testclip name="http://10.170.78.167/webdav/content/E_MAS_PC_NOLOGO_nts/index.m3u8" scenario="Set Subtitle in NTS" restart="no" interval="15" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+      <DRM_Server name="10.170.78.40:80">
+        <testclip name="http://10.170.78.167/webdav/content/E_MAS_PC_NOLOGO_live/index.m3u8" scenario="Adaptive Steam Show" restart="yes" interval="15" seekforward="0" seekbackward="0" bookmark="0" />
+      </DRM_Server>
+    </playermode>
+  </case>
+</Parameter>
