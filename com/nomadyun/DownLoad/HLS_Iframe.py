@@ -21,6 +21,8 @@ c_116_hls_fuel_tv_abf4730f4fedc76717a6298e907e4019/index.m3u8?token=9999630a0c3d
 urlRoot = 'http://213.65.40.18:8090/session/b0bac46a-6005-11e5-9cc6-984be10b109c/wp5abc/\
 c_116_hls_fuel_tv_abf4730f4fedc76717a6298e907e4019/'
 
+token = "?token=9999630a0c3d1256b0288721d2ecad65_1442873323"
+
 m3u8_list = []
 ts_list = []
 
@@ -45,7 +47,8 @@ def M3U8Paser(URI):
                 m3u8_list.append(m_m3u8.group(0))
                 #print line
                 sub_m3u8 = m_m3u8.group(0)
-                sub_m3u8_url = urlRoot + sub_m3u8
+                sub_m3u8_url = urlRoot + sub_m3u8 + token
+                print sub_m3u8_url
                 M3U8Paser(sub_m3u8_url)
                     
             elif m_ts:
