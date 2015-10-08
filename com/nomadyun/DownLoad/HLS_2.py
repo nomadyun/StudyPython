@@ -101,5 +101,6 @@ threads=[]
 if __name__ == '__main__':
     M3U8Paser(baseUrl)
     for t in threads:
+        t.setDaemon(True)
         t.join()
     
