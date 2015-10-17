@@ -1,5 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
-import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib2, urllib, re, string, sys, os, gzip, StringIO
+import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, re, string, sys, os, gzip, io
 
 # 酷6云中剧场(www.juchang.com) by wow1122(wht9000@gmail.com), 2011
 
@@ -35,12 +35,12 @@ MOVIE_TYPE_LIST['4'] = [['全部','0'],['真人秀','29'],['脱口秀','30'],['�
 ZM_LIST = [['全部','0'],['A','1'], ['B','2'], ['C','3'], ['D','4'],['E','5'],['F','6'],['G','7'],['H','8'],['I','9'],['G','10'],['K','11'],['L','12'],['M','13'],['N','14'],['O','15'],['P','16'],['Q','17'],['R','18'],['S','19'],['T','20'],['U','21'],['V','22'],['V','23'],['X','24'],['Y','25'],['Z','26'],]
 
 def GetHttpData(url):
-    req = urllib2.Request(url)
+    req = urllib.request.Request(url)
     req.add_header('User-Agent', UserAgent)
-    response = urllib2.urlopen(req)
+    response = urllib.request.urlopen(req)
     httpdata = response.read()
     if response.headers.get('content-encoding', None) == 'gzip':
-        httpdata = gzip.GzipFile(fileobj=StringIO.StringIO(httpdata)).read()
+        httpdata = gzip.GzipFile(fileobj=io.StringIO(httpdata)).read()
     response.close()
     match = re.compile('<meta http-equiv="[Cc]ontent-[Tt]ype" content="text/html; charset=(.+?)"').findall(httpdata)
     if len(match)<=0:
@@ -48,21 +48,21 @@ def GetHttpData(url):
     if len(match)>0:
         charset = match[0].lower()
         if (charset != 'utf-8') and (charset != 'utf8'):
-            httpdata = unicode(httpdata, charset).encode('utf8')
+            httpdata = str(httpdata, charset).encode('utf8')
     return httpdata
   
 def rootList():
     li=xbmcgui.ListItem('电影')
-    u=sys.argv[0]+"?mode=1&name="+urllib.quote_plus('电影')+"&type="+urllib.quote_plus('1')+"&cat="+urllib.quote_plus('0')+"&area="+urllib.quote_plus('0')+"&year="+urllib.quote_plus('0')+"&order="+urllib.quote_plus('4')+"&page="+urllib.quote_plus('1')
+    u=sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus('电影')+"&type="+urllib.parse.quote_plus('1')+"&cat="+urllib.parse.quote_plus('0')+"&area="+urllib.parse.quote_plus('0')+"&year="+urllib.parse.quote_plus('0')+"&order="+urllib.parse.quote_plus('4')+"&page="+urllib.parse.quote_plus('1')
     xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)
     li=xbmcgui.ListItem('电视剧')
-    u=sys.argv[0]+"?mode=1&name="+urllib.quote_plus('电视剧')+"&type="+urllib.quote_plus('2')+"&cat="+urllib.quote_plus('0')+"&area="+urllib.quote_plus('0')+"&year="+urllib.quote_plus('0')+"&order="+urllib.quote_plus('4')+"&page="+urllib.quote_plus('1')
+    u=sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus('电视剧')+"&type="+urllib.parse.quote_plus('2')+"&cat="+urllib.parse.quote_plus('0')+"&area="+urllib.parse.quote_plus('0')+"&year="+urllib.parse.quote_plus('0')+"&order="+urllib.parse.quote_plus('4')+"&page="+urllib.parse.quote_plus('1')
     xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)
     li=xbmcgui.ListItem('动漫')
-    u=sys.argv[0]+"?mode=1&name="+urllib.quote_plus('动漫')+"&type="+urllib.quote_plus('3')+"&cat="+urllib.quote_plus('0')+"&area="+urllib.quote_plus('0')+"&year="+urllib.quote_plus('0')+"&szm="+urllib.quote_plus('0')+"&order="+urllib.quote_plus('4')+"&page="+urllib.quote_plus('1')
+    u=sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus('动漫')+"&type="+urllib.parse.quote_plus('3')+"&cat="+urllib.parse.quote_plus('0')+"&area="+urllib.parse.quote_plus('0')+"&year="+urllib.parse.quote_plus('0')+"&szm="+urllib.parse.quote_plus('0')+"&order="+urllib.parse.quote_plus('4')+"&page="+urllib.parse.quote_plus('1')
     xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)
     li=xbmcgui.ListItem('综艺')
-    u=sys.argv[0]+"?mode=1&name="+urllib.quote_plus('综艺')+"&type="+urllib.quote_plus('4')+"&cat="+urllib.quote_plus('0')+"&area="+urllib.quote_plus('0')+"&year="+urllib.quote_plus('0')+"&order="+urllib.quote_plus('4')+"&page="+urllib.quote_plus('1')
+    u=sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus('综艺')+"&type="+urllib.parse.quote_plus('4')+"&cat="+urllib.parse.quote_plus('0')+"&area="+urllib.parse.quote_plus('0')+"&year="+urllib.parse.quote_plus('0')+"&order="+urllib.parse.quote_plus('4')+"&page="+urllib.parse.quote_plus('1')
     xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
     
@@ -80,7 +80,7 @@ def progList(name,type,cat,area,year,szm,order,page):
         currpage = 1
     if type=='3':url = baseurl + cat +'-'+ area + '-' + year + '-0-'+szm+'-4-' +order +'-1-'+ str(currpage) +'-12.html'
     else:url = baseurl + cat +'-'+ area + '-' + year + '-0-1-' +order +'-1-'+ str(currpage) +'-12.html'
-    print url
+    print(url)
     link = GetHttpData(url)
     match = re.compile('<li ><div class="box01_ln(.+?)</li>', re.DOTALL).findall(link)
     totalItems = len(match)
@@ -96,7 +96,7 @@ def progList(name,type,cat,area,year,szm,order,page):
         li = xbmcgui.ListItem('首字母[COLOR FFFF0000]【' + szmstr + '】[/COLOR] 类型[COLOR FFFF0000]【' + catstr + '】[/COLOR] 地区[COLOR FFFF0000]【' + areastr + '】[/COLOR] 年份[COLOR FFFF0000]【' + yearstr + '】[/COLOR] 排序[COLOR FFFF0000]【' + orderstr + '】[/COLOR]（按此选择）')
     else:
         li = xbmcgui.ListItem('类型[COLOR FFFF0000]【' + catstr + '】[/COLOR] 地区[COLOR FFFF0000]【' + areastr + '】[/COLOR] 年份[COLOR FFFF0000]【' + yearstr + '】[/COLOR] 排序[COLOR FFFF0000]【' + orderstr + '】[/COLOR]（按此选择）')
-    u = sys.argv[0] + "?mode=5&name="+urllib.quote_plus(name)+"&type="+urllib.quote_plus(type)+"&cat="+urllib.quote_plus(cat)+"&area="+urllib.quote_plus(area)+"&year="+urllib.quote_plus(year)+"&order="+urllib.quote_plus(order)
+    u = sys.argv[0] + "?mode=5&name="+urllib.parse.quote_plus(name)+"&type="+urllib.parse.quote_plus(type)+"&cat="+urllib.parse.quote_plus(cat)+"&area="+urllib.parse.quote_plus(area)+"&year="+urllib.parse.quote_plus(year)+"&order="+urllib.parse.quote_plus(order)
     xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True, totalItems)
     for i in range(0,len(match)):
         match1 = re.compile('<div class="modht_ln"><h1>(.+?)</h1>').search(match[i])
@@ -108,18 +108,18 @@ def progList(name,type,cat,area,year,szm,order,page):
         li = xbmcgui.ListItem(p_name, iconImage = '', thumbnailImage = p_thumb)
         isDir=False
         if type=='1':
-            u = sys.argv[0]+"?mode=10&name="+urllib.quote_plus(p_name)+"&type="+urllib.quote_plus(type)+"&url="+urllib.quote_plus(p_id)+"&thumb="+urllib.quote_plus(p_thumb)
+            u = sys.argv[0]+"?mode=10&name="+urllib.parse.quote_plus(p_name)+"&type="+urllib.parse.quote_plus(type)+"&url="+urllib.parse.quote_plus(p_id)+"&thumb="+urllib.parse.quote_plus(p_thumb)
         else:
             isDir=True
-            u = sys.argv[0]+"?mode=2&name="+urllib.quote_plus(p_name)+"&type="+urllib.quote_plus(type)+"&url="+urllib.quote_plus(p_id)+"&thumb="+urllib.quote_plus(p_thumb)
+            u = sys.argv[0]+"?mode=2&name="+urllib.parse.quote_plus(p_name)+"&type="+urllib.parse.quote_plus(type)+"&url="+urllib.parse.quote_plus(p_id)+"&thumb="+urllib.parse.quote_plus(p_thumb)
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, isDir, totalItems)
     if currpage > 1:
         li = xbmcgui.ListItem('上一页')
-        u = sys.argv[0]+"?mode=1&name="+urllib.quote_plus(name)+"&type="+urllib.quote_plus(type)+"&cat="+urllib.quote_plus(cat)+"&area="+urllib.quote_plus(area)+"&year="+urllib.quote_plus(year)+"&order="+urllib.quote_plus(order)+"&page="+urllib.quote_plus(str(currpage-1))
+        u = sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus(name)+"&type="+urllib.parse.quote_plus(type)+"&cat="+urllib.parse.quote_plus(cat)+"&area="+urllib.parse.quote_plus(area)+"&year="+urllib.parse.quote_plus(year)+"&order="+urllib.parse.quote_plus(order)+"&page="+urllib.parse.quote_plus(str(currpage-1))
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True, totalItems)
     if len(match) > 11:
         li = xbmcgui.ListItem('下一页')
-        u = sys.argv[0]+"?mode=1&name="+urllib.quote_plus(name)+"&type="+urllib.quote_plus(type)+"&cat="+urllib.quote_plus(cat)+"&area="+urllib.quote_plus(area)+"&year="+urllib.quote_plus(year)+"&order="+urllib.quote_plus(order)+"&page="+urllib.quote_plus(str(currpage+1))
+        u = sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus(name)+"&type="+urllib.parse.quote_plus(type)+"&cat="+urllib.parse.quote_plus(cat)+"&area="+urllib.parse.quote_plus(area)+"&year="+urllib.parse.quote_plus(year)+"&order="+urllib.parse.quote_plus(order)+"&page="+urllib.parse.quote_plus(str(currpage+1))
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True, totalItems)
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -163,7 +163,7 @@ def FindItems(type,link):
            for p_url,p_thumb,p_name  in match:
 
                 li = xbmcgui.ListItem(name+'-'+p_name, iconImage = '', thumbnailImage = p_thumb)
-                u = sys.argv[0] + "?mode=10&name="+urllib.quote_plus(name+'- '+p_name)+"&url="+urllib.quote_plus(p_url)+"&thumb="+urllib.quote_plus(p_thumb)
+                u = sys.argv[0] + "?mode=10&name="+urllib.parse.quote_plus(name+'- '+p_name)+"&url="+urllib.parse.quote_plus(p_url)+"&thumb="+urllib.parse.quote_plus(p_thumb)
                 #li.setInfo(type = "Video", infoLabels = {"Title":p_name, "Director":p_director, "Genre":p_genre, "Plot":p_plot, "Year":p_year, "Cast":p_cast, "Tagline":p_tagline})
                 xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, False, totalItems)
            return             
@@ -172,7 +172,7 @@ def FindItems(type,link):
    totalItems=len(match)
    for p_name,p_url,p_thumb  in match:
         li = xbmcgui.ListItem(name+'-'+p_name, iconImage = '', thumbnailImage = p_thumb)
-        u = sys.argv[0] + "?mode=10&name="+urllib.quote_plus(name+'- '+p_name)+"&url="+urllib.quote_plus(p_url)+"&thumb="+urllib.quote_plus(p_thumb)
+        u = sys.argv[0] + "?mode=10&name="+urllib.parse.quote_plus(name+'- '+p_name)+"&url="+urllib.parse.quote_plus(p_url)+"&thumb="+urllib.parse.quote_plus(p_thumb)
         #li.setInfo(type = "Video", infoLabels = {"Title":p_name, "Director":p_director, "Genre":p_genre, "Plot":p_plot, "Year":p_year, "Cast":p_cast, "Tagline":p_tagline})
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, False, totalItems)  
              
@@ -270,7 +270,7 @@ thumb = None
 res = 0
 
 try:
-    type = urllib.unquote_plus(params["type"])
+    type = urllib.parse.unquote_plus(params["type"])
 except:
     pass
 try:
@@ -278,47 +278,47 @@ try:
 except:
     pass
 try:
-    thumb = urllib.unquote_plus(params["thumb"])
+    thumb = urllib.parse.unquote_plus(params["thumb"])
 except:
     pass
 try:
-    baseurl = urllib.unquote_plus(params["baseurl"])
+    baseurl = urllib.parse.unquote_plus(params["baseurl"])
 except:
     pass
 try:
-    url = urllib.unquote_plus(params["url"])
+    url = urllib.parse.unquote_plus(params["url"])
 except:
     pass
 try:
-    page = urllib.unquote_plus(params["page"])
+    page = urllib.parse.unquote_plus(params["page"])
 except:
     pass
 try:
-    order = urllib.unquote_plus(params["order"])
+    order = urllib.parse.unquote_plus(params["order"])
 except:
     pass
 try:
-    year = urllib.unquote_plus(params["year"])
+    year = urllib.parse.unquote_plus(params["year"])
 except:
     pass
 try:
-    area = urllib.unquote_plus(params["area"])
+    area = urllib.parse.unquote_plus(params["area"])
 except:
     pass
 try:
-    cat = urllib.unquote_plus(params["cat"])
+    cat = urllib.parse.unquote_plus(params["cat"])
 except:
     pass
 try:
-    szm = urllib.unquote_plus(params["szm"])
+    szm = urllib.parse.unquote_plus(params["szm"])
 except:
     pass
 try:
-    id = urllib.unquote_plus(params["id"])
+    id = urllib.parse.unquote_plus(params["id"])
 except:
     pass
 try:
-    name = urllib.unquote_plus(params["name"])
+    name = urllib.parse.unquote_plus(params["name"])
 except:
     pass
 try:

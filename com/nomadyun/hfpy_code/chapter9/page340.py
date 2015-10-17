@@ -6,6 +6,6 @@ import yate
 
 athletes = athletemodel.get_namesID_from_store()
 
-print(yate.start_response('application/json'))
-print(json.dumps(sorted(athletes)))
+print((yate.start_response('application/json')))
+print((json.dumps(sorted(athletes))))
 

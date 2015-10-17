@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys,urllib2,urllib,time
+import sys,urllib.request,urllib.error,urllib.parse,urllib.request,urllib.parse,urllib.error,time
 import xbmc,xbmcplugin,xbmcgui
 import kugou
 
@@ -31,7 +31,7 @@ def index(page):
         icon = 'http://imge.kugou.com/fmlogo/145/%s'%i['imgurl']
         li.setIconImage(icon)
         query = {'act':'list','fmid':i['fmid'], 'icon':icon}
-        url = "%s?%s"%(plugin_url,urllib.urlencode(query))
+        url = "%s?%s"%(plugin_url,urllib.parse.urlencode(query))
         xbmcplugin.addDirectoryItem(handle, url, li, True)
     #设置分页
     if currpage > 1:
@@ -53,7 +53,7 @@ def getPlayList(fmid, icon):
     listitemAll.setInfo(type="Music",infoLabels={ "Title":title})
     t = int(time.time())
     query = {'act':'playList', 'fmid': fmid, 'time': t}
-    listUrl = '%s?%s'%(plugin_url,urllib.urlencode(query))
+    listUrl = '%s?%s'%(plugin_url,urllib.parse.urlencode(query))
     xbmcplugin.addDirectoryItem(handle, listUrl, listitemAll, False)
     songs = kugou.getSongs(fmid, t)
     #判断songs是否存在
@@ -61,7 +61,7 @@ def getPlayList(fmid, icon):
         for song in songs:
             listitem=xbmcgui.ListItem(song['name'])
             listitem.setInfo(type="Music",infoLabels={ "Title": song['name'],})
-            url = plugin_url+"?act=play&title="+song['name'].encode('utf-8')+"&hash="+urllib.quote_plus(song['hash'].encode('utf-8'))
+            url = plugin_url+"?act=play&title="+song['name'].encode('utf-8')+"&hash="+urllib.parse.quote_plus(song['hash'].encode('utf-8'))
             xbmcplugin.addDirectoryItem(handle, url, listitem, False)
         xbmcplugin.endOfDirectory(handle)
 
@@ -101,6 +101,6 @@ elif act == 'playList':
     t = params.get('time', 0)
     playList(fmid, t)
 elif act == 'play':
-    hashId = urllib.unquote_plus(params['hash'])
+    hashId = urllib.parse.unquote_plus(params['hash'])
     title = params.get('title', '')
     play(hashId,title)

@@ -1,5 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
-import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib2, urllib, re, string, sys, os, gzip, StringIO
+import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, re, string, sys, os, gzip, io
 
 # 5ivdo(5ivdo) by sand, 2014
 
@@ -41,12 +41,12 @@ def get_params(pmenustr=None):
 
 
 def GetHttpData(url):
-    req = urllib2.Request(url)
+    req = urllib.request.Request(url)
     req.add_header('User-Agent', UserAgent)
-    response = urllib2.urlopen(req)
+    response = urllib.request.urlopen(req)
     httpdata = response.read()
     if response.headers.get('content-encoding', None) == 'gzip':
-        httpdata = gzip.GzipFile(fileobj=StringIO.StringIO(httpdata)).read()
+        httpdata = gzip.GzipFile(fileobj=io.StringIO(httpdata)).read()
     response.close()
     match = re.compile('<meta http-equiv="[Cc]ontent-[Tt]ype" content="text/html; charset=(.+?)"').findall(httpdata)
     if len(match)<=0:
@@ -54,16 +54,16 @@ def GetHttpData(url):
     if len(match)>0:
         charset = match[0].lower()
         if (charset != 'utf-8') and (charset != 'utf8'):
-            httpdata = unicode(httpdata, charset).encode('utf8')
+            httpdata = str(httpdata, charset).encode('utf8')
     return httpdata
 
 
 def Get5ivdoData(url):
-    req = urllib2.Request(url)
+    req = urllib.request.Request(url)
     req.add_header('User-Agent', UserAgent)
-    response = urllib2.urlopen(req)
+    response = urllib.request.urlopen(req)
     httpdata = response.read()
-    httpdata = gzip.GzipFile(fileobj=StringIO.StringIO(httpdata)).read()
+    httpdata = gzip.GzipFile(fileobj=io.StringIO(httpdata)).read()
     response.close()
     return httpdata
 
@@ -74,9 +74,9 @@ def showmenu(purl,pvmode = '0'):
     match = re.compile('<mode>(.+?)</mode><title>(.+?)</title><url>(.+?)</url><thumb>(.+?)</thumb>').findall(link)
     for imode, ititle, iurl,ithumb in match:
         li=xbmcgui.ListItem(ititle,iconImage = '', thumbnailImage = ithumb)
-        u=sys.argv[0]+"?mode="+urllib.quote_plus(imode)+"&url="+urllib.quote_plus('http://www.5ivdo.com/' + iurl)
+        u=sys.argv[0]+"?mode="+urllib.parse.quote_plus(imode)+"&url="+urllib.parse.quote_plus('http://www.5ivdo.com/' + iurl)
         xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)
-    if pvmode <> '0' :xbmc.executebuiltin('Container.SetViewMode(' + pvmode + ')')  
+    if pvmode != '0' :xbmc.executebuiltin('Container.SetViewMode(' + pvmode + ')')  
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 
@@ -120,11 +120,11 @@ def showdata(purl):
                 iisub=''
             if iother.find('prefix') > 0:
                 iiprefix=re.compile('<prefix>(.+?)</prefix>').findall(iother)[0]
-                ipara = ipara + "&prefix="+urllib.quote_plus(iiprefix)
+                ipara = ipara + "&prefix="+urllib.parse.quote_plus(iiprefix)
             if iother.find('options') > 0:
                 iioptions=re.compile('<options>(.+?)</options>').findall(iother)[0]
-                ipara = ipara + "&options="+urllib.quote_plus(iioptions)
-            ui = "?name="+urllib.quote_plus(ititle)+"&mode="+urllib.quote_plus(imode)+"&matchstr="+urllib.quote_plus(iimatchstr)+"&mflag="+urllib.quote_plus(iimflag)+"&url="+urllib.quote_plus(iurl)+"&sub="+urllib.quote_plus(iisub)+ipara    
+                ipara = ipara + "&options="+urllib.parse.quote_plus(iioptions)
+            ui = "?name="+urllib.parse.quote_plus(ititle)+"&mode="+urllib.parse.quote_plus(imode)+"&matchstr="+urllib.parse.quote_plus(iimatchstr)+"&mflag="+urllib.parse.quote_plus(iimflag)+"&url="+urllib.parse.quote_plus(iurl)+"&sub="+urllib.parse.quote_plus(iisub)+ipara    
             u=sys.argv[0]+ui
             if isinglemem == 'TRUE':
                 listA.append(ititle)
@@ -152,14 +152,14 @@ def showdata(purl):
             isub=''
         if match0.find('prefix') > 0:
             iiprefix=re.compile('<prefix>(.+?)</prefix>').findall(match0)[0]
-            ipara = ipara + "&prefix="+urllib.quote_plus(iiprefix)
+            ipara = ipara + "&prefix="+urllib.parse.quote_plus(iiprefix)
         if match0.find('options') > 0:
             iioptions=re.compile('<options>(.+?)</options>').findall(match0)[0]
-            ipara = ipara + "&options="+urllib.quote_plus(iioptions)
+            ipara = ipara + "&options="+urllib.parse.quote_plus(iioptions)
         match = re.compile('<mode>(.+?)</mode><title>(.+?)</title><url>(.+?)</url><thumb>(.+?)</thumb>').findall(link)
         for imode, ititle, iurl ,ithumb in match:
             li=xbmcgui.ListItem(ititle,iconImage = '', thumbnailImage = ithumb)
-            u=sys.argv[0]+"?name="+urllib.quote_plus(ititle)+"&mode="+urllib.quote_plus(imode)+"&matchstr="+urllib.quote_plus(imatchstr)+"&mflag="+urllib.quote_plus(imflag)+"&url="+urllib.quote_plus(iurl)+"&sub="+urllib.quote_plus(isub) + ipara
+            u=sys.argv[0]+"?name="+urllib.parse.quote_plus(ititle)+"&mode="+urllib.parse.quote_plus(imode)+"&matchstr="+urllib.parse.quote_plus(imatchstr)+"&mflag="+urllib.parse.quote_plus(imflag)+"&url="+urllib.parse.quote_plus(iurl)+"&sub="+urllib.parse.quote_plus(isub) + ipara
             xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,False)
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
@@ -179,10 +179,10 @@ def rootList():
 
 def urlExists(url):
     try:
-        resp = urllib2.urlopen(url)
+        resp = urllib.request.urlopen(url)
         result = True
         resp.close()
-    except urllib2.URLError, e:
+    except urllib.error.URLError as e:
         result = False
     return result 
 
@@ -313,47 +313,47 @@ def genparamdata(pmenustr=None):
     iret['thumb']=''
 
     try:
-        iret['thumb']  = urllib.unquote_plus(params["thumb"]) 
+        iret['thumb']  = urllib.parse.unquote_plus(params["thumb"]) 
     except:
         pass
     
     try:
-        iret['name']  = urllib.unquote_plus(params["name"]) 
+        iret['name']  = urllib.parse.unquote_plus(params["name"]) 
     except:
         pass
     
     try:
-        iret['matchstr']  = urllib.unquote_plus(params["matchstr"]) 
+        iret['matchstr']  = urllib.parse.unquote_plus(params["matchstr"]) 
     except:
         pass
     
     try:
-        iret['mflag']  = urllib.unquote_plus(params["mflag"]) 
+        iret['mflag']  = urllib.parse.unquote_plus(params["mflag"]) 
     except:
         pass
     
     try:
-        iret['url']  = urllib.unquote_plus(params["url"]) 
+        iret['url']  = urllib.parse.unquote_plus(params["url"]) 
     except:
         pass
     
     try:
-        iret['mode']  = urllib.unquote_plus(params["mode"]) 
+        iret['mode']  = urllib.parse.unquote_plus(params["mode"]) 
     except:
         pass
     
     try:
-        iret['sub']  = urllib.unquote_plus(params["sub"]) 
+        iret['sub']  = urllib.parse.unquote_plus(params["sub"]) 
     except:
         pass
     
     try:
-        iret['prefix']  = urllib.unquote_plus(params["prefix"]) 
+        iret['prefix']  = urllib.parse.unquote_plus(params["prefix"]) 
     except:
         pass
     
     try:
-        iret['options']  = ' ' +  urllib.unquote_plus(params["options"])
+        iret['options']  = ' ' +  urllib.parse.unquote_plus(params["options"])
     except:
         pass
 

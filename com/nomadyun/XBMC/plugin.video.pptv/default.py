@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib2, urllib, re, gzip, datetime, StringIO, urlparse
+import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, re, gzip, datetime, io, urllib.parse
 try:
 	import json
 except:
@@ -64,22 +64,22 @@ dbglevel = 3
 
 def GetHttpData(url, agent = UserAgent_IPAD):
 	#print "getHttpData: " + url
-	req = urllib2.Request(url)
+	req = urllib.request.Request(url)
 	req.add_header('Accept-encoding', 'gzip')
 	req.add_header('User-Agent', agent)
 	try:
-		response = urllib2.urlopen(req)
+		response = urllib.request.urlopen(req)
 		httpdata = response.read()
 		if response.headers.get('content-encoding', None) == 'gzip':
 			try:
-				tmpdata = gzip.GzipFile(fileobj = StringIO.StringIO(httpdata)).read()
+				tmpdata = gzip.GzipFile(fileobj = io.StringIO(httpdata)).read()
 				httpdata = tmpdata
 			except:
-				print "Invalid gzip content on: " + url
+				print("Invalid gzip content on: " + url)
 		charset = response.headers.getparam('charset')
 		response.close()
 	except:
-		print 'GetHttpData Error: %s' % url
+		print('GetHttpData Error: %s' % url)
 		return ''
 	match = re.compile('<meta http-equiv=["]?[Cc]ontent-[Tt]ype["]? content="text/html;[\s]?charset=(.+?)"').findall(httpdata)
 	if len(match)>0:
@@ -93,7 +93,7 @@ def GetHttpData(url, agent = UserAgent_IPAD):
 def _getDOMContent(html, name, match, ret):  # Cleanup
 	log("match: " + match, 3)
 
-	endstr = u"</" + name  # + ">"
+	endstr = "</" + name  # + ">"
 
 	start = html.find(match)
 	end = html.find(endstr, start)
@@ -110,7 +110,7 @@ def _getDOMContent(html, name, match, ret):  # Cleanup
 
 	log("start: %s, len: %s, end: %s" % (start, len(match), end), 3)
 	if start == -1 and end == -1:
-		result = u""
+		result = ""
 	elif start > -1 and end > -1:
 		result = html[start + len(match):end]
 	elif end > -1:
@@ -171,7 +171,7 @@ def _getDOMElements(item, name, attrs):
 			lst2 = []
 		else:
 			log("Setting new list " + repr(lst2), 5)
-			test = range(len(lst))
+			test = list(range(len(lst)))
 			test.reverse()
 			for i in test:  # Delete anything missing from the next list.
 				if not lst[i] in lst2:
@@ -187,20 +187,20 @@ def _getDOMElements(item, name, attrs):
 	log("Done: " + str(type(lst)), 3)
 	return lst
 
-def parseDOM(html, name=u"", attrs={}, ret=False):
+def parseDOM(html, name="", attrs={}, ret=False):
 	log("Name: " + repr(name) + " - Attrs:" + repr(attrs) + " - Ret: " + repr(ret) + " - HTML: " + str(type(html)), 3)
 
 	if isinstance(html, str): # Should be handled
 		html = [html]
-	elif isinstance(html, unicode):
+	elif isinstance(html, str):
 		html = [html]
 	elif not isinstance(html, list):
 		log("Input isn't list or string/unicode.")
-		return u""
+		return ""
 
 	if not name.strip():
 		log("Missing tag name")
-		return u""
+		return ""
 
 	ret_lst = []
 	for item in html:
@@ -232,7 +232,7 @@ def parseDOM(html, name=u"", attrs={}, ret=False):
 
 def log(description, level=0):
 	if dbg and dbglevel > level:
-		print description
+		print(description)
 
 ##### Common functions end #####
 
@@ -242,13 +242,13 @@ def GetPPTVCatalogs():
 	names = []
 
 	data = GetHttpData(PPTV_TV_LIST)
-	chl = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'li', attrs = { 'class' : 'level_1 ' }))
+	chl = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'li', attrs = { 'class' : 'level_1 ' }))
 	if len(chl) > 0:
 		links = parseDOM(chl, 'a', ret = 'href')
 		names = parseDOM(chl, 'a')
 
 	data = GetHttpData(PPTV_LIST)
-	chl = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'div', attrs = { 'class' : 'detail_menu' }))
+	chl = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'div', attrs = { 'class' : 'detail_menu' }))
 	if len(chl) > 0:
 		links.extend(parseDOM(chl, 'a', ret = 'href'))
 		names.extend(parseDOM(chl, 'a'))
@@ -267,7 +267,7 @@ def GetPPTVVideoList(url, only_filter = False):
 
 	filter_list = []
 	# get common video filters like: type/year/location...
-	tmp = parseDOM(unicode(data, 'utf-8', 'ignore'), 'div', attrs = { 'class' : 'sear-menu' })
+	tmp = parseDOM(str(data, 'utf-8', 'ignore'), 'div', attrs = { 'class' : 'sear-menu' })
 	if len(tmp) > 0:
 		filters = parseDOM(tmp[0], 'dt')
 		dd = parseDOM(tmp[0], 'dd')
@@ -293,7 +293,7 @@ def GetPPTVVideoList(url, only_filter = False):
 			} )
 
 	# get special video filters like: update time
-	tmp = parseDOM(unicode(data, 'utf-8', 'ignore'), 'div', attrs = { 'class' : 'sort-result-container' })
+	tmp = parseDOM(str(data, 'utf-8', 'ignore'), 'div', attrs = { 'class' : 'sort-result-container' })
 	if len(tmp) > 0:
 		s_dict = { 'label' : PPTV_SORT, 'selected_name' : '', 'options' : [] }
 		filters = parseDOM(tmp[0], 'li')
@@ -312,9 +312,9 @@ def GetPPTVVideoList(url, only_filter = False):
 
 	# get non-live videos
 	video_list = []
-	videos = parseDOM(unicode(data, 'utf-8', 'ignore'), 'a', attrs = { 'class' : 'ui-list-ct' })
-	video_names = parseDOM(unicode(data, 'utf-8', 'ignore'), 'a', attrs = { 'class' : 'ui-list-ct' }, ret = 'title')
-	video_links = parseDOM(unicode(data, 'utf-8', 'ignore'), 'a', attrs = { 'class' : 'ui-list-ct' }, ret = 'href')
+	videos = parseDOM(str(data, 'utf-8', 'ignore'), 'a', attrs = { 'class' : 'ui-list-ct' })
+	video_names = parseDOM(str(data, 'utf-8', 'ignore'), 'a', attrs = { 'class' : 'ui-list-ct' }, ret = 'title')
+	video_links = parseDOM(str(data, 'utf-8', 'ignore'), 'a', attrs = { 'class' : 'ui-list-ct' }, ret = 'href')
 	for i in range(len(videos)):
 		tmp = CheckValidList(parseDOM(videos[i], 'p', attrs = { 'class' : 'ui-pic' }))
 		spcs = []
@@ -387,12 +387,12 @@ def GetPPTVVideoList(url, only_filter = False):
 				} )
 
 	# get page lists
-	page = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'p', attrs = { 'class' : 'pageNum' })).encode('utf-8')
+	page = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'p', attrs = { 'class' : 'pageNum' })).encode('utf-8')
 	pages_attr = {}
 	if len(page) > 0:
 		pages_attr['last_page'] = int(CheckValidList(re.compile('.*/\s*(\d+)').findall(page)))
-		params = urlparse.parse_qs(urlparse.urlparse(url).query)
-		if 'page' in params.keys():
+		params = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+		if 'page' in list(params.keys()):
 			pages_attr['selected_page'] = int(params['page'][0])
 		else:
 			pages_attr['selected_page'] = 1
@@ -447,7 +447,7 @@ def GetPPTVEpisodesList(name, url, thumb):
 			return (None, video_list, None)
 
 	# no channel ID, maybe only contain one video link
-	tmp = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'p', attrs = { 'class' : 'btn_play' }))
+	tmp = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'p', attrs = { 'class' : 'btn_play' }))
 	if len(tmp) > 0:
 		links = parseDOM(tmp, 'a', ret = 'href');
 		return (None, [ { 'link' : i.encode('utf-8'), 'name' : name, 'image' : thumb, 'isdir' : 0, 'spc' : '' } for i in links], None)
@@ -465,13 +465,13 @@ def GetPPTVVideoURL_Flash(url, quality):
 	data = GetHttpData(PPTV_WEBPLAY_XML + 'webplay3-0-' + vid + '.xml&ft=' + str(quality) + '&version=4&type=web.fpp')
 
 	# get current file name and index
-	rid = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'channel', ret = 'rid'))
-	cur = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'file', ret = 'cur'))
+	rid = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'channel', ret = 'rid'))
+	cur = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'file', ret = 'cur'))
 
 	if len(rid) <= 0 or len(cur) <= 0:
 		return []
 
-	dt = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'dt', attrs = { 'ft' : cur.encode('utf-8') }))
+	dt = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'dt', attrs = { 'ft' : cur.encode('utf-8') }))
 	if len(dt) <= 0:
 		return []
 
@@ -482,7 +482,7 @@ def GetPPTVVideoURL_Flash(url, quality):
 		return []
 
 	# get segment list
-	dragdata = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'dragdata', attrs = { 'ft' : cur.encode('utf-8') }))
+	dragdata = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'dragdata', attrs = { 'ft' : cur.encode('utf-8') }))
 	if len(dragdata) <= 0:
 		return []
 	sgms = parseDOM(dragdata, 'sgm', ret = 'no')
@@ -491,17 +491,17 @@ def GetPPTVVideoURL_Flash(url, quality):
 
 	# get key from flvcd.com, sorry we can't get it directly by now
 	data = GetHttpData(FLVCD_PARSER_PHP + '?format=' + PPTV_VIDEO_QUALITY_VALS[int(cur.encode('utf-8'))] + '&kw=' + url)
-	forms = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'form', attrs = { 'name' : 'mform' }))
+	forms = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'form', attrs = { 'name' : 'mform' }))
 	if len(forms) <= 0:
 		return []
-	downparseurl = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'form', attrs = { 'name' : 'mform' }, ret = 'action'))
+	downparseurl = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'form', attrs = { 'name' : 'mform' }, ret = 'action'))
 	# get hidden values in form
 	input_names = parseDOM(forms.encode('utf-8'), 'input', attrs = { 'type' : 'hidden' }, ret = 'name')
 	input_values = parseDOM(forms.encode('utf-8'), 'input', attrs = { 'type' : 'hidden' }, ret = 'value')
 	if min(len(input_names), len(input_names)) <= 0:
 		return []
 
-	data = GetHttpData(downparseurl + '?' + urllib.urlencode(zip(input_names, input_values)))
+	data = GetHttpData(downparseurl + '?' + urllib.parse.urlencode(list(zip(input_names, input_values))))
 	flvcd_id = CheckValidList(re.compile('xdown\.php\?id=(\d+)').findall(data))
 	if len(flvcd_id) <= 0:
 		return []
@@ -564,7 +564,7 @@ def GetPPTVVideoURL(url, quality):
 		data = GetHttpData(ipadurl)
 
 		# get quality
-		tmp = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'file'))
+		tmp = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'file'))
 		if len(tmp) <= 0:
 			return []
 		items = parseDOM(tmp, 'item', ret = 'rid')
@@ -581,7 +581,7 @@ def GetPPTVVideoURL(url, quality):
 		if len(rid) <= 0 or len(cur) <= 0:
 			return []
 
-		dt = CheckValidList(parseDOM(unicode(data, 'utf-8', 'ignore'), 'dt', attrs = { 'ft' : cur.encode('utf-8') }))
+		dt = CheckValidList(parseDOM(str(data, 'utf-8', 'ignore'), 'dt', attrs = { 'ft' : cur.encode('utf-8') }))
 		if len(dt) <= 0:
 			return []
 
@@ -604,7 +604,7 @@ def GetPPTVSearchList(url, matchnameonly = None):
 
 	for i in mitems:
 		# append video list
-		tmp = parseDOM(unicode(data, 'utf-8', 'ignore'), 'li', attrs = { 'class' : i })
+		tmp = parseDOM(str(data, 'utf-8', 'ignore'), 'li', attrs = { 'class' : i })
 		if len(tmp) > 0:
 			videos.extend(tmp)
 
@@ -681,7 +681,7 @@ def listRoot():
 	total_items = len(roots) + 1
 	showSearchEntry(total_items)
 	for i in roots:
-		u = sys.argv[0] + '?url=' + urllib.quote_plus(i['link']) + '&mode=videolist&name=' + urllib.quote_plus(i['name'])
+		u = sys.argv[0] + '?url=' + urllib.parse.quote_plus(i['link']) + '&mode=videolist&name=' + urllib.parse.quote_plus(i['name'])
 		liz = xbmcgui.ListItem(i['name'])
 		xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, liz, True, total_items)
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -713,7 +713,7 @@ def listVideo(name, url, list_ret):
 	if filter_list and len(filter_list) > 0:
 		tmp = [ '[COLOR FF00FF00]' + i['label'] + '[/COLOR]' + i['selected_name'] for i in filter_list ]
 		title += ' [' + '/'.join(tmp) + '] (' + PPTV_SELECT + ')'
-		u = sys.argv[0] + '?url=' + urllib.quote_plus(url) + '&mode=filterlist&name=' + urllib.quote_plus(name)
+		u = sys.argv[0] + '?url=' + urllib.parse.quote_plus(url) + '&mode=filterlist&name=' + urllib.parse.quote_plus(name)
 	# add first item
 	liz = xbmcgui.ListItem(title)
 	xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, liz, True, total_items)
@@ -729,7 +729,7 @@ def listVideo(name, url, list_ret):
 		# check whether is an episode target
 		if (i['isdir'] > 0) or ((i['isdir'] < 0) and (not re.match('^http://v\.pptv\.com/show/.*$', i['link']))):
 			is_dir = True
-		u = sys.argv[0] + '?url=' + urllib.quote_plus(i['link']) + '&mode=' + (is_dir and 'episodelist' or 'playvideo') + '&name=' + urllib.quote_plus(title) + '&thumb=' + urllib.quote_plus(i['image'])
+		u = sys.argv[0] + '?url=' + urllib.parse.quote_plus(i['link']) + '&mode=' + (is_dir and 'episodelist' or 'playvideo') + '&name=' + urllib.parse.quote_plus(title) + '&thumb=' + urllib.parse.quote_plus(i['image'])
 		liz = xbmcgui.ListItem(title, thumbnailImage = i['image'])
 		xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, liz, is_dir, total_items)
 
@@ -737,7 +737,7 @@ def listVideo(name, url, list_ret):
 	if pages_attr:
 		for page_link, page_str in zip(page_links, page_strs):
 			if len(page_link) > 0:
-				u = sys.argv[0] + '?url=' + urllib.quote_plus(page_link) + '&mode=videolist&name=' + urllib.quote_plus(name)
+				u = sys.argv[0] + '?url=' + urllib.parse.quote_plus(page_link) + '&mode=videolist&name=' + urllib.parse.quote_plus(name)
 				liz = xbmcgui.ListItem(page_str)
 				xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, liz, True, total_items)
 
@@ -749,7 +749,7 @@ def playVideo(name, url, thumb):
 
 	# if live page without video link, try to get video link from search result
 	if re.match('^http://live\.pptv\.com/list/tv_program/.*$', url):
-		url = GetPPTVSearchList(PPTV_SEARCH_URL + urllib.quote_plus(name), name)
+		url = GetPPTVSearchList(PPTV_SEARCH_URL + urllib.parse.quote_plus(name), name)
 
 	if len(url) > 0:
 		quality = int(__addon__.getSetting('movie_quality'))
@@ -801,15 +801,15 @@ thumb = None
 key = None
 
 try:
-	name = urllib.unquote_plus(params['name'])
+	name = urllib.parse.unquote_plus(params['name'])
 except:
 	pass
 try:
-	url = urllib.unquote_plus(params['url'])
+	url = urllib.parse.unquote_plus(params['url'])
 except:
 	pass
 try:
-	thumb = urllib.unquote_plus(params['thumb'])
+	thumb = urllib.parse.unquote_plus(params['thumb'])
 except:
 	pass
 try:
@@ -838,4 +838,4 @@ elif mode == 'filterlist':
 elif mode == 'search':
 	searchPPTV()
 elif mode == 'searchlist':
-	listVideo(PPTV_SEARCH_RES + ' - ' + key, None, GetPPTVSearchList(PPTV_SEARCH_URL + urllib.quote_plus(key)))
+	listVideo(PPTV_SEARCH_RES + ' - ' + key, None, GetPPTVSearchList(PPTV_SEARCH_URL + urllib.parse.quote_plus(key)))

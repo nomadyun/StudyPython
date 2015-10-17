@@ -10,7 +10,7 @@ def char_count_dict(filename):
     try:
         file_input = open(filename,'r')
     except IOError:
-        print 'Fail to open the file.'
+        print('Fail to open the file.')
     else:
         for line in file_input:
             x = 0
@@ -28,7 +28,7 @@ def print_chars(filename):
     char_count = char_count_dict(filename)
     chars = sorted(char_count.keys())
     for char in chars:
-        print char,char_count[char] 
+        print(char,char_count[char]) 
 
 if __name__ == '__main__':
     print_chars('ocr.txt')

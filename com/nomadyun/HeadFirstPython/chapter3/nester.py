@@ -4,7 +4,7 @@ Created on 2014年10月24日
 
 @author: huang_yun
 '''
-from __future__ import print_function
+
 import sys
 movies = ['The Holy Grail',1975,'Terry Jones & Terry Gilliam',1991,
                 'Graham Chapman',

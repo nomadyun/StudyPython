@@ -10,7 +10,7 @@ def bubblesort(numbers):
         for i in range(j):
             if numbers[i]>numbers[i+1]:
                 numbers[i],numbers[i+1] = numbers[i+1],numbers[i]
-            print(i,j)
+            print((i,j))
             print(numbers)
 if __name__ == '__main__':
     bubblesort(array)

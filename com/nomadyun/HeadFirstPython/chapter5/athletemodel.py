@@ -14,7 +14,7 @@ def get_coach_data(filename):
         templ = data.strip().split(',')
         return(AthleteList(templ.pop(0), templ.pop(0), templ))
     except IOError as ioerr:
-        print 'File error: ' + str(ioerr)
+        print('File error: ' + str(ioerr))
         return(None)
 
 def put_to_store(files_list):
@@ -26,7 +26,7 @@ def put_to_store(files_list):
         with open('athletes.pickle','wb') as athf:
             pickle.dump(all_athletes,athf)
     except IOError as ioerr:
-        print 'File error(put_and_store):' + str(ioerr)           
+        print('File error(put_and_store):' + str(ioerr))           
     return (all_athletes)
 
 def get_from_store(file_list):
@@ -35,11 +35,11 @@ def get_from_store(file_list):
         with open('athletes.pickle','rb') as athf:
             all_athletes = pickle.load(athf)
     except IOError as ioerr:
-        print 'File error(get_and_store):' + str(ioerr)           
+        print('File error(get_and_store):' + str(ioerr))           
     return (all_athletes)
 
 
 if __name__ == '__main__':
     files = ['james2.txt','julie2.txt','mikey2.txt']
-    print put_to_store(files)
-    print get_from_store('athletes.pickle')
+    print(put_to_store(files))
+    print(get_from_store('athletes.pickle'))

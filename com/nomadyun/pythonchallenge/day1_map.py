@@ -19,7 +19,7 @@ def f(a):
     return alpha
 
 def out_put(strs):
-    list_new = map(f,list_a)
+    list_new = list(map(f,list_a))
     for x in strs:
         if x.isalpha():
             x_new = list_new[list_a.index(x)]
@@ -34,6 +34,6 @@ def out_put(strs):
 
 if __name__ == '__main__':
     out_put(string)
-    print '\n'
+    print('\n')
     out_put(url_str)  
 

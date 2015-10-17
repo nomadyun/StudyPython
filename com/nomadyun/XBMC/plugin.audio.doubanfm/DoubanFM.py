@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import urllib2, json
+import urllib.request, urllib.error, urllib.parse, json
 
 __UserAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:6.0.2) Gecko/20100101 Firefox/6.0.2'
 __ChannelUrl = 'http://www.douban.com/j/app/radio/channels'
 PlayListUrlPre = 'http://douban.fm/j/mine/playlist?type=n&from=mainsite&channel='
 
 def GetInfo(url, key):
-    req = urllib2.Request(url)
+    req = urllib.request.Request(url)
     req.add_header('User-Agent', __UserAgent)
-    response = urllib2.urlopen(req)
+    response = urllib.request.urlopen(req)
     info = json.load(response)
     return info[key]
 
@@ -39,6 +39,6 @@ def GetChannels():
 
 if __name__ == '__main__':
     for n, i in GetChannels():
-        print n, i
+        print(n, i)
     for d in GetSongs(0):
-        print d['title'], d['url']
+        print(d['title'], d['url'])

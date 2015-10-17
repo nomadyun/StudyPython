@@ -10,7 +10,7 @@ import sys
 import re
 import os
 import shutil
-import commands
+import subprocess
 
 
 """Copy Special exercise
@@ -30,7 +30,7 @@ def get_special_paths(dirname):
             file_rel_path = os.path.join(dirname,filename)
             file_abs_path = os.path.abspath(file_rel_path)
             all_files.append(file_abs_path)
-    print all_files
+    print(all_files)
             
 def copy_to(paths,to_dir):
     if not os.path.exists(to_dir):
@@ -42,8 +42,8 @@ def copy_to(paths,to_dir):
 def zip_to(paths,zippath):
     zip_prog = r'C:\Program Files\7-Zip\7z.exe'
     cmd = zip_prog +' b'+' '+zippath+' '+'.join(paths)'
-    print "Command I'm going to do:" + cmd
-    (status, output) = commands.getstatusoutput(cmd)
+    print("Command I'm going to do:" + cmd)
+    (status, output) = subprocess.getstatusoutput(cmd)
     # If command had a problem (status is non-zero),
     # print its output to stderr and exit.
     if status:
@@ -58,7 +58,7 @@ def main():
     # which is the script itself.
     args = sys.argv[1:]
     if not args:
-        print "usage: [--todir dir][--tozip zipfile] dir [dir ...]";
+        print("usage: [--todir dir][--tozip zipfile] dir [dir ...]");
         sys.exit(1)
 
     # todir and tozip are either set from command line
@@ -75,7 +75,7 @@ def main():
         del args[0:2]
 
     if len(args) == 0:
-        print "error: must specify one or more dirs"
+        print("error: must specify one or more dirs")
         sys.exit(1)
     
     paths = []
@@ -88,7 +88,7 @@ def main():
     elif tozip:
         zip_to(paths, tozip)
     else:
-        print '\n'.join(paths)
+        print('\n'.join(paths))
         
 if __name__ == "__main__":
     main()

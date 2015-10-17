@@ -7,23 +7,23 @@ import datetime
 import re
 import shutil
 import traceback
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 addon = xbmcaddon.Addon(id="plugin.video.cntv-live")
 addon_path = xbmc.translatePath(addon.getAddonInfo("path"))
 
 def updateChannel(fHandle, channelID, channelName):
 	try:
-		print("Updating channel " + channelID)
+		print(("Updating channel " + channelID))
 		
 		dateInChina = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).replace(hour=0, minute=0) #UTC +0800
 		localTZ = datetime.datetime.now() - datetime.datetime.utcnow() #UTC + how much?
 		tzOffset = localTZ - datetime.timedelta(hours=8) #how much ahead of China
 		
 		#Get data
-		request = urllib2.Request("http://tv.cntv.cn/index.php?action=epg-list&date=" + dateInChina.strftime("%Y-%m-%d") + "&channel=" + channelID)
+		request = urllib.request.Request("http://tv.cntv.cn/index.php?action=epg-list&date=" + dateInChina.strftime("%Y-%m-%d") + "&channel=" + channelID)
 		request.add_header("Referer", "http://tv.cntv.cn/epg")
-		resp = urllib2.urlopen(request)
+		resp = urllib.request.urlopen(request)
 		data = resp.read().decode("utf-8")
 		
 		match = re.compile('<dd(?: class="cur1")?>(.+?)</dd>', re.DOTALL).findall(data)
@@ -61,7 +61,7 @@ def updateChannel(fHandle, channelID, channelName):
 			fHandle.write('<title lang="cn">{0}</title>\n'.format(entry[1].encode("utf-8")))
 			fHandle.write('</programme>\n')
 	except Exception:
-		print(traceback.format_exc())
+		print((traceback.format_exc()))
 
 def formatDate(obj):
 	return obj.strftime("%Y%m%d%H%M00")
@@ -140,7 +140,7 @@ def doUpdate():
 		
 		shutil.copyfile(xbmc.translatePath("special://temp/epg2.xml"), xbmc.translatePath("special://temp/epg.xml")) #Good programming practices, yo!
 	except Exception:
-		print(traceback.format_exc())
+		print((traceback.format_exc()))
 	
 	print("Finished updating EPG")
 	

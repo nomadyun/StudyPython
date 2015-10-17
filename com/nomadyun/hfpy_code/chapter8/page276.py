@@ -3,8 +3,8 @@ import android
 import json
 import time
 
-from urllib import urlencode
-from urllib2 import urlopen
+from urllib.parse import urlencode
+from urllib.request import urlopen
 
 hello_msg     = "Welcome to Coach Kelly's Timing App"
 list_title    = 'Here is your list of athletes:'

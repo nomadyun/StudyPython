@@ -35,8 +35,8 @@ headers2 = {
       #'Host':'taojinbi.taobao.com'
   }
 #UserName Password
-username = raw_input("Please input your username in taobao: ")
-password = raw_input("Please input your password of taobao: ")
+username = input("Please input your username in taobao: ")
+password = input("Please input your password of taobao: ")
 postData = {
     'TPL_username':username,
     'TPL_password':password,    
@@ -47,11 +47,11 @@ postData = {
 
 try:
     r1 = requests.get(loginUrl)
-    print r1.request.headers
+    print(r1.request.headers)
     r = requests.post(loginUrl,data=postData,headers = headers1)
     re_result = r.text
-    print r.status_code
-    print re_result
+    print(r.status_code)
+    print(re_result)
     #===========================================================================
     # try:
     #     match = url_Patten.search(re_result)
@@ -71,8 +71,8 @@ try:
     #     print 'Fail to login.'    
     #===========================================================================
 except HTTPError as err:
-    print 'Network Connect Error' + str(err)
-    print r.raise_for_status
+    print('Network Connect Error' + str(err))
+    print(r.raise_for_status)
  
 
 if __name__ == '__main__':

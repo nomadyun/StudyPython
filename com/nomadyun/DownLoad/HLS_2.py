@@ -6,7 +6,7 @@ Created on 2015-04-01
 '''
 
 import re,os,threading
-import urllib,urllib2
+import urllib.request, urllib.parse, urllib.error
 
 p_url = re.compile(r'(http(s*)://.+/)(.*.m3u8)')
 p_m3u8 = re.compile('.*.m3u8')
@@ -24,30 +24,30 @@ match = p_url.match(baseUrl)
 if match:
     #root of the url
     urlRoot = match.group(1)
-    print urlRoot
+    print(urlRoot)
 else:
-    print 'Please check the url!'
+    print('Please check the url!')
 
 #prepare download directory
 if not os.path.exists(down_path):
     os.makedirs(down_path)
 os.chdir(down_path)
-print 'Files will be downloaded to:' + '' + os.getcwd()
+print(('Files will be downloaded to:' + '' + os.getcwd()))
 
 def M3U8Paser(URI):
-    req = urllib2.Request(URI)
+    req = urllib.request.Request(URI)
 
     try: 
-        response = urllib2.urlopen(req, timeout=10)
+        response = urllib.request.urlopen(req, timeout=10)
 
-    except urllib2.URLError, e:        
+    except urllib.error.URLError as e:        
         if hasattr(e, 'code'):            
-            print 'The server couldn\'t fulfill the request.'           
-            print 'Error code: ', e.code    
+            print('The server couldn\'t fulfill the request.')           
+            print(('Error code: ', e.code))    
       
         elif hasattr(e, 'reason'):           
-            print 'We failed to reach a server.'           
-            print 'Reason: ', e.reason    
+            print('We failed to reach a server.')           
+            print(('Reason: ', e.reason))    
 
     else:    
         content = response.readlines()
@@ -84,7 +84,7 @@ def M3U8Paser(URI):
                 t = downloader(key_url,key)
                 threads.append(t)
                 t.start()    
-        print "Download completed!" 
+        print("Download completed!") 
               
 class downloader(threading.Thread):
         def __init__(self, url, name):
@@ -93,8 +93,8 @@ class downloader(threading.Thread):
             self.name=name
 
         def run(self):
-            print 'downloading %s' % self.url
-            urllib.urlretrieve(self.url, self.name)
+            print(('downloading %s' % self.url))
+            urllib.request.urlretrieve(self.url, self.name)
 
 threads=[]
 

@@ -5,7 +5,7 @@ import sqlite3
 
 import yate
 
-print(yate.start_response('text/plain'))
+print((yate.start_response('text/plain')))
 
 form = cgi.FieldStorage()
 the_id = form_data['Athlete'].value

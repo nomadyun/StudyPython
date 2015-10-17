@@ -1,5 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
-import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib2, urllib, re, string, sys, os, gzip, StringIO, math
+import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, re, string, sys, os, gzip, io, math
 import base64, time
 try:
     import simplejson
@@ -40,7 +40,7 @@ class youkuDecoder:
         return ''.join(realId)
 
     def trans_e(self, a, c):
-        b = range(256)
+        b = list(range(256))
         f = 0
         result = ''
         h = 0
@@ -91,13 +91,13 @@ def log(txt):
 
 def GetHttpData(url):
     log("%s::url - %s" % (sys._getframe().f_code.co_name, url))
-    req = urllib2.Request(url)
+    req = urllib.request.Request(url)
     req.add_header('User-Agent', UserAgent)
     try:
-        response = urllib2.urlopen(req)
+        response = urllib.request.urlopen(req)
         httpdata = response.read()
         if response.headers.get('content-encoding', None) == 'gzip':
-            httpdata = gzip.GzipFile(fileobj=StringIO.StringIO(httpdata)).read()
+            httpdata = gzip.GzipFile(fileobj=io.StringIO(httpdata)).read()
         charset = response.headers.getparam('charset')
         response.close()
     except:
@@ -174,9 +174,9 @@ def rootList():
     totalItems = len(match)
     for path, id, name in match:
         if path == 'v_olist':
-            u = sys.argv[0]+"?mode=1&name="+urllib.quote_plus(name)+"&id="+urllib.quote_plus(id)+"&genre=&area=&year=&order=7&page=1"
+            u = sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus(name)+"&id="+urllib.parse.quote_plus(id)+"&genre=&area=&year=&order=7&page=1"
         else:
-            u = sys.argv[0]+"?mode=11&name="+urllib.quote_plus(name)+"&id="+urllib.quote_plus(id)+"&genre=0&year=1&order=2&page=1"
+            u = sys.argv[0]+"?mode=11&name="+urllib.parse.quote_plus(name)+"&id="+urllib.parse.quote_plus(id)+"&genre=0&year=1&order=2&page=1"
         li = xbmcgui.ListItem(name)
         xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True,totalItems)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -224,7 +224,7 @@ def progList(name,id,page,genre,area,year,order):
         else:
             yearstr = '全部年份'
     li = xbmcgui.ListItem(name+'（第'+str(currpage)+'/'+str(totalpages)+'页）【[COLOR FFFF0000]' + genrestr + '[/COLOR]/[COLOR FF00FF00]' + areastr + '[/COLOR]/[COLOR FFFFFF00]' + yearstr + '[/COLOR]/[COLOR FF00FFFF]' + searchDict(ORDER_LIST,order) + '[/COLOR]】（按此选择）')
-    u = sys.argv[0]+"?mode=4&name="+urllib.quote_plus(name)+"&id="+urllib.quote_plus(id)+"&genre="+urllib.quote_plus(genre)+"&area="+urllib.quote_plus(area)+"&year="+urllib.quote_plus(year)+"&order="+order+"&page="+urllib.quote_plus(listpage)
+    u = sys.argv[0]+"?mode=4&name="+urllib.parse.quote_plus(name)+"&id="+urllib.parse.quote_plus(id)+"&genre="+urllib.parse.quote_plus(genre)+"&area="+urllib.parse.quote_plus(area)+"&year="+urllib.parse.quote_plus(year)+"&order="+order+"&page="+urllib.parse.quote_plus(listpage)
     xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True, totalItems)
     for i in range(0,len(match)):
         if id in ('c_96','c_95'):
@@ -266,13 +266,13 @@ def progList(name,id,page,genre,area,year,order):
         if match[i].find('<i class="ico-ispay"')>0:
             p_name1 += '[付费节目]'
         li = xbmcgui.ListItem(str(i + 1) + '. ' + p_name1, iconImage = '', thumbnailImage = p_thumb)
-        u = sys.argv[0]+"?mode="+str(mode)+"&name="+urllib.quote_plus(p_name)+"&id="+urllib.quote_plus(p_id)+"&thumb="+urllib.quote_plus(p_thumb)+"&res="+str(p_res)
+        u = sys.argv[0]+"?mode="+str(mode)+"&name="+urllib.parse.quote_plus(p_name)+"&id="+urllib.parse.quote_plus(p_id)+"&thumb="+urllib.parse.quote_plus(p_thumb)+"&res="+str(p_res)
         #li.setInfo(type = "Video", infoLabels = {"Title":p_name, "Director":p_director, "Genre":p_genre, "Plot":p_plot, "Year":p_year, "Cast":p_cast, "Tagline":p_tagline})
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, isdir, totalItems)
         
     for num in plist:
         li = xbmcgui.ListItem("... 第" + num + "页")
-        u = sys.argv[0]+"?mode=1&name="+urllib.quote_plus(name)+"&id="+urllib.quote_plus(id)+"&genre="+urllib.quote_plus(genre)+"&area="+urllib.quote_plus(area)+"&year="+year+"&order="+order+"&page="+str(num)
+        u = sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus(name)+"&id="+urllib.parse.quote_plus(id)+"&genre="+urllib.parse.quote_plus(genre)+"&area="+urllib.parse.quote_plus(area)+"&year="+year+"&order="+order+"&page="+str(num)
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True, totalItems)         
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -329,7 +329,7 @@ def seriesList(name,id,thumb,res):
         else:
             p_res = 4
         li = xbmcgui.ListItem(p_name1, iconImage = '', thumbnailImage = p_thumb)
-        u = sys.argv[0]+"?mode=10&name="+urllib.quote_plus(p_name)+"&id="+urllib.quote_plus(p_id)+"&thumb="+urllib.quote_plus(p_thumb)+"&res="+str(p_res)
+        u = sys.argv[0]+"?mode=10&name="+urllib.parse.quote_plus(p_name)+"&id="+urllib.parse.quote_plus(p_id)+"&thumb="+urllib.parse.quote_plus(p_thumb)+"&res="+str(p_res)
         #li.setInfo(type = "Video", infoLabels = {"Title":p_name, "Director":p_director, "Genre":p_genre, "Plot":p_plot, "Year":p_year, "Cast":p_cast, "Tagline":p_tagline})
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, False, totalItems)
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
@@ -364,7 +364,7 @@ def progList2(name,id,page,genre,year,order):
     else:
         genrestr = searchDict(genrelist,genre)
     li = xbmcgui.ListItem(name+'（第'+str(currpage)+'/'+str(totalpages)+'页）【[COLOR FFFF0000]' + genrestr + '[/COLOR]/[COLOR FF00FF00]' + searchDict(YEAR_LIST2,year) + '[/COLOR]/[COLOR FF00FFFF]' + searchDict(ORDER_LIST2,order) + '[/COLOR]】（按此选择）')
-    u = sys.argv[0]+"?mode=12&name="+urllib.quote_plus(name)+"&id="+urllib.quote_plus(id)+"&genre="+urllib.quote_plus(genre)+"&year="+urllib.quote_plus(year)+"&order="+order+"&page="+urllib.quote_plus(listpage)
+    u = sys.argv[0]+"?mode=12&name="+urllib.parse.quote_plus(name)+"&id="+urllib.parse.quote_plus(id)+"&genre="+urllib.parse.quote_plus(genre)+"&year="+urllib.parse.quote_plus(year)+"&order="+order+"&page="+urllib.parse.quote_plus(listpage)
     xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True, totalItems)
     for i in range(0,len(match)):
         match1 = re.compile('<div class="v-link">\s*<a href="http://v.youku.com/v_show/id_(.+?)\.html"').search(match[i])
@@ -386,13 +386,13 @@ def progList2(name,id,page,genre,year,order):
         else:
             p_res = 4
         li = xbmcgui.ListItem(str(i + 1) + '. ' + p_name1, iconImage = '', thumbnailImage = p_thumb)
-        u = sys.argv[0]+"?mode=10&name="+urllib.quote_plus(p_name)+"&id="+urllib.quote_plus(p_id)+"&thumb="+urllib.quote_plus(p_thumb)+"&res="+str(p_res)
+        u = sys.argv[0]+"?mode=10&name="+urllib.parse.quote_plus(p_name)+"&id="+urllib.parse.quote_plus(p_id)+"&thumb="+urllib.parse.quote_plus(p_thumb)+"&res="+str(p_res)
         #li.setInfo(type = "Video", infoLabels = {"Title":p_name, "Director":p_director, "Genre":p_genre, "Plot":p_plot, "Year":p_year, "Cast":p_cast, "Tagline":p_tagline})
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, False, totalItems)
 
     for num in plist:
         li = xbmcgui.ListItem("... 第" + num + "页")
-        u = sys.argv[0]+"?mode=11&name="+urllib.quote_plus(name)+"&id="+urllib.quote_plus(id)+"&genre="+urllib.quote_plus(genre)+"&year="+year+"&order="+order+"&page="+str(num)
+        u = sys.argv[0]+"?mode=11&name="+urllib.parse.quote_plus(name)+"&id="+urllib.parse.quote_plus(id)+"&genre="+urllib.parse.quote_plus(genre)+"&year="+year+"&order="+order+"&page="+str(num)
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True, totalItems)         
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -426,7 +426,7 @@ def PlayVideo(name,id,thumb,res):
 
     vid = id
     lang_select = int(__addon__.getSetting('lang_select')) # 默认|每次选择|自动首选
-    if lang_select != 0 and json_response['data'][0].has_key('dvd') and 'audiolang' in json_response['data'][0]['dvd']:
+    if lang_select != 0 and 'dvd' in json_response['data'][0] and 'audiolang' in json_response['data'][0]['dvd']:
         langlist = json_response['data'][0]['dvd']['audiolang']
         if lang_select == 1:
             list = [x['lang'] for x in langlist]
@@ -453,7 +453,7 @@ def PlayVideo(name,id,thumb,res):
         oip = json_response['data'][0]['ip']
         ep = json_response['data'][0]['ep']
         ep, token, sid = youkuDecoder()._calc_ep2(video_id, ep)
-        query = urllib.urlencode(dict(
+        query = urllib.parse.urlencode(dict(
             vid=video_id, ts=int(time.time()), keyframe=1, type=typeid,
             ep=ep, oip=oip, ctype=12, ev=1, token=token, sid=sid,
         ))
@@ -577,39 +577,39 @@ try:
 except:
     pass
 try:
-    thumb = urllib.unquote_plus(params["thumb"])
+    thumb = urllib.parse.unquote_plus(params["thumb"])
 except:
     pass
 try:
-    url = urllib.unquote_plus(params["url"])
+    url = urllib.parse.unquote_plus(params["url"])
 except:
     pass
 try:
-    page = urllib.unquote_plus(params["page"])
+    page = urllib.parse.unquote_plus(params["page"])
 except:
     pass
 try:
-    order = urllib.unquote_plus(params["order"])
+    order = urllib.parse.unquote_plus(params["order"])
 except:
     pass
 try:
-    year = urllib.unquote_plus(params["year"])
+    year = urllib.parse.unquote_plus(params["year"])
 except:
     pass
 try:
-    area = urllib.unquote_plus(params["area"])
+    area = urllib.parse.unquote_plus(params["area"])
 except:
     pass
 try:
-    genre = urllib.unquote_plus(params["genre"])
+    genre = urllib.parse.unquote_plus(params["genre"])
 except:
     pass
 try:
-    id = urllib.unquote_plus(params["id"])
+    id = urllib.parse.unquote_plus(params["id"])
 except:
     pass
 try:
-    name = urllib.unquote_plus(params["name"])
+    name = urllib.parse.unquote_plus(params["name"])
 except:
     pass
 try:

@@ -58,7 +58,7 @@ if resp['which'] in ('positive'):
     if resp['which'] in ('positive'):
         predicted_distance = app.dialogGetSelectedItems().result[0]
         predicted_distance = distances[predicted_distance]
-        prediction = [k for k in row_data[predicted_distance].keys()
+        prediction = [k for k in list(row_data[predicted_distance].keys())
                           if row_data[predicted_distance][k] == closest_column_heading]
         do_dialog('The predicted time running ' + predicted_distance + ' is: ',
                              prediction, app.dialogSetItems, "OK", None)

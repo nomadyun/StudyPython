@@ -4,9 +4,9 @@ Created on 2014年11月20日
 
 @author: huang_yun
 '''
-import re,StringIO,gzip
-import urllib,urllib2,cookielib
-from urllib2 import HTTPError,URLError
+import re,io,gzip
+import urllib.request, urllib.parse, urllib.error,urllib.request,urllib.error,urllib.parse,http.cookiejar
+from urllib.error import HTTPError, URLError
 
 #登录后的跳转地址
 url_Patten = re.compile(r'http://i.taobao.com/my_taobao.htm\?nekot=\S.{26}')
@@ -54,8 +54,8 @@ headers2 = {
     #'Host':'taojinbi.taobao.com'
 }
 #用户名，密码
-username = raw_input("Please input your username in taobao: ")
-password = raw_input("Please input your password of taobao: ")
+username = input("Please input your username in taobao: ")
+password = input("Please input your password of taobao: ")
 postData = {
     'TPL_username':username,
     'TPL_password':password,    
@@ -101,17 +101,17 @@ postData = {
     # 'naviVer':'firefox|31'            
     #===========================================================================
 }
-postData = urllib.urlencode(postData)
+postData = urllib.parse.urlencode(postData)
 
 #处理cookie
-cookieJar = cookielib.LWPCookieJar()
-cookieHand = urllib2.HTTPCookieProcessor(cookieJar)
-opener = urllib2.build_opener(cookieHand,urllib2.HTTPHandler)
-urllib2.install_opener(opener)
+cookieJar = http.cookiejar.LWPCookieJar()
+cookieHand = urllib.request.HTTPCookieProcessor(cookieJar)
+opener = urllib.request.build_opener(cookieHand,urllib.request.HTTPHandler)
+urllib.request.install_opener(opener)
 
 #解压gzip  
 def gzdecode(data) :  
-    compressedstream = StringIO.StringIO(data)  
+    compressedstream = io.StringIO(data)  
     gziper = gzip.GzipFile(fileobj=compressedstream)    
     data2 = gziper.read()   # 读取解压缩后数据   
     return data2
@@ -119,18 +119,18 @@ def gzdecode(data) :
 def login_to_taobao():   
     global fullurl
     #打开登录页面取的cookie
-    urllib2.urlopen(loginUrl)
+    urllib.request.urlopen(loginUrl)
     
-    req = urllib2.Request(loginUrl,postData,headers1)
+    req = urllib.request.Request(loginUrl,postData,headers1)
     
     try:
-        res = urllib2.urlopen(req)
-    except HTTPError,e:
-        print 'The server could not fulfill the request.'    
-        print 'Error code: ', e.code  
-    except URLError,e:
-        print 'We failed to reach a server.'  
-        print 'Reason: ', e.reason  
+        res = urllib.request.urlopen(req)
+    except HTTPError as e:
+        print('The server could not fulfill the request.')    
+        print('Error code: ', e.code)  
+    except URLError as e:
+        print('We failed to reach a server.')  
+        print('Reason: ', e.reason)  
     else:
         for cookie in cookieJar:
             #list转换为string
@@ -138,15 +138,15 @@ def login_to_taobao():
             match = token_Patten.match(cookie)
             if match:
                 _tb_token_ = match.group(1)
-                print _tb_token_
+                print(_tb_token_)
         
         #result = res.read().decode('gbk')
         result = res.readlines()
         info = res.info()     
         status = res.getcode()
         res.close()
-        print status       
-        print info
+        print(status)       
+        print(info)
         #print "Response:", result  
     #登录成功后的跳转地址
         try:
@@ -154,21 +154,21 @@ def login_to_taobao():
                 match = url_Patten.search(line)
                 if match:          
                     fullurl = match.group(0)        
-                    print '恭喜，登录成功！'
+                    print('恭喜，登录成功！')
                     #content = urllib2.urlopen(match.group(0)).read()
                     #print content
-                    print fullurl
+                    print(fullurl)
         except:             
-            print '登录失败'    
+            print('登录失败')    
             
 def taojinbi():
     global fullurl
     login_to_taobao()
-    fullurl = urllib.quote(fullurl, safe=':?=/')
-    urllib2.urlopen(fullurl)
+    fullurl = urllib.parse.quote(fullurl, safe=':?=/')
+    urllib.request.urlopen(fullurl)
     #urllib2.urlopen(jinbiUrl)
-    req = urllib2.Request(fullurl,None,headers2)
-    res = urllib2.urlopen(req)
+    req = urllib.request.Request(fullurl,None,headers2)
+    res = urllib.request.urlopen(req)
     result = res.read()
     con = gzdecode(result)
     for cookie in cookieJar:
@@ -178,19 +178,19 @@ def taojinbi():
         match_time = time_Patten.match(cookie)
         if match_token:
             _tb_token_ = match_token.group(1)
-            print _tb_token_
+            print(_tb_token_)
         elif match_time:
             _time_ = match_time.group(1)
-            print _time_    
-        print cookie
+            print(_time_)    
+        print(cookie)
     info = res.info()
     status = res.getcode()
     geturl = res.geturl()
     res.close()
-    print status
-    print geturl
-    print info
-    print con
+    print(status)
+    print(geturl)
+    print(info)
+    print(con)
     res.close()
         
 if __name__ == '__main__':

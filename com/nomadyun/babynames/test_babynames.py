@@ -24,7 +24,7 @@ def extract_names(filename):
             #print match_line.group()
             year_match = patten_year.search(match_line.group())
             year = year_match.group(1)
-            print year
+            print(year)
             names_top.append(year)
         
         name_tuples = patten_name.findall(text)
@@ -47,7 +47,7 @@ def extract_names(filename):
         for name in sorted_names:
                 names_top.append(name+' '+ names_to_rank[name])
         
-        print names_top
+        print(names_top)
 
 
         

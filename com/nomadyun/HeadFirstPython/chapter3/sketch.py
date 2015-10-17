@@ -20,7 +20,7 @@ try:
             except ValueError:
                 pass                
 except IOError as err:   
-    print 'File error:' + str(err)
+    print('File error:' + str(err))
 
 
 try:
@@ -31,7 +31,7 @@ try:
         other_out.write('\n'.join(Other_Says))    
 
 except IOError as err:
-    print 'Can not open the file:' + str(err)
+    print('Can not open the file:' + str(err))
     
 
 if __name__ == '__main__':

@@ -34,7 +34,7 @@ def createFile(originalLog, newLog):
     try:
         fs1 = open(newLog, 'wb')
     except Exception as e:
-        print "**********", e
+        print("**********", e)
 
     fs1.write("[Plugin Auto Test]FPS")
     while True:
@@ -79,7 +79,7 @@ def text2list(log_file, testclip, cpuInfo):
 
     # k: link name
     # v: related log message of this link
-    for k, v in content.items():
+    for k, v in list(content.items()):
         tempList = []
         tempList.append(str(testclip))
         tempList.append(str(cpuInfo))
@@ -92,16 +92,16 @@ def text2list(log_file, testclip, cpuInfo):
             for i in result:
                 decoderSum += int(i[-2])
                 renderSum += int(i[-1])
-            print float(decoderSum)/length, float(renderSum)/length
+            print(float(decoderSum)/length, float(renderSum)/length)
             # Decoder FPS
             tempList.append(round(decoderSum/length, 2))
             # Render FPS
             tempList.append(round(renderSum/length, 2))
         else:
             tempList.append(None)
-            print "Data missing error(FPS): Please check the log file."
+            print("Data missing error(FPS): Please check the log file.")
         segmentList.append(tempList)
-        print segmentList
+        print(segmentList)
     return segmentList
 
 def getCurTime():

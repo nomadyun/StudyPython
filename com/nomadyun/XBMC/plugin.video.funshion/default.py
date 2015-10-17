@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib2, urllib, re, string, sys, os, gzip, StringIO
-import math, os.path, httplib, time
+import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, re, string, sys, os, gzip, io
+import math, os.path, http.client, time
 from random import randrange
-import cookielib
+import http.cookiejar
 try:
     import simplejson
 except ImportError:
@@ -38,15 +38,15 @@ def log(txt):
 
 ########################################################################
 def getHttpData(url):
-    print "url-link: " + url
+    print("url-link: " + url)
     log("%s::url - %s" % (sys._getframe().f_code.co_name, url))
-    req = urllib2.Request(url)
+    req = urllib.request.Request(url)
     req.add_header('User-Agent', UserAgent)
     try:
-        response = urllib2.urlopen(req)
+        response = urllib.request.urlopen(req)
         httpdata = response.read()
         if response.headers.get('content-encoding', None) == 'gzip':
-            httpdata = gzip.GzipFile(fileobj=StringIO.StringIO(httpdata)).read()
+            httpdata = gzip.GzipFile(fileobj=io.StringIO(httpdata)).read()
         charset = response.headers.getparam('charset')
         response.close()
     except:
@@ -163,7 +163,7 @@ def rootList():
     cat = "全部"
     for name, type in CHANNEL_LIST:
         li = xbmcgui.ListItem(name)
-        u = sys.argv[0]+"?mode=1&name="+urllib.quote_plus(name)+"&type="+urllib.quote_plus(type)+"&cat="+cat+"&filtrs=&page=1"+"&listpage="
+        u = sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus(name)+"&type="+urllib.parse.quote_plus(type)+"&cat="+cat+"&filtrs=&page=1"+"&listpage="
         xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True,totalItems)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
@@ -189,7 +189,7 @@ def progList(name, type, cat, filtrs, page, listpage):
 
     # Fetch & build video titles list for user selection, highlight user selected filtrs  
     li = xbmcgui.ListItem(name + '（第' + str(page) + '页）【' + cat + '】（按此选择)')
-    u = sys.argv[0]+"?mode=10&name="+urllib.quote_plus(name)+"&type="+type+"&cat="+urllib.quote_plus(cat)+"&filtrs="+urllib.quote_plus(filtrs)+"&page=1"+"&listpage="+urllib.quote_plus(listpage)
+    u = sys.argv[0]+"?mode=10&name="+urllib.parse.quote_plus(name)+"&type="+type+"&cat="+urllib.parse.quote_plus(cat)+"&filtrs="+urllib.parse.quote_plus(filtrs)+"&page=1"+"&listpage="+urllib.parse.quote_plus(listpage)
     xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True)
     
     if link == None: return
@@ -243,7 +243,7 @@ def progList(name, type, cat, filtrs, page, listpage):
             p_name1 += ' (' + p_desp + ')'
 
         li = xbmcgui.ListItem(p_name1, iconImage = '', thumbnailImage = p_thumb)
-        u = sys.argv[0]+"?mode="+str(mode)+"&name="+urllib.quote_plus(p_name1)+"&id="+urllib.quote_plus(p_id)+"&thumb="+urllib.quote_plus(p_thumb)+"&type="+urllib.quote_plus(type)
+        u = sys.argv[0]+"?mode="+str(mode)+"&name="+urllib.parse.quote_plus(p_name1)+"&id="+urllib.parse.quote_plus(p_id)+"&thumb="+urllib.parse.quote_plus(p_thumb)+"&type="+urllib.parse.quote_plus(type)
         li.setInfo(type = "Video", infoLabels = {"Title":p_name})
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, isdir, totalItems)
         if (mode == 4): playlist.add(p_id, li)
@@ -257,7 +257,7 @@ def progList(name, type, cat, filtrs, page, listpage):
             if (num not in plist):
                 plist.append(num)
                 li = xbmcgui.ListItem("... 第" + num + "页")
-                u = sys.argv[0]+"?mode=1&name="+urllib.quote_plus(name)+"&type="+urllib.quote_plus(type)+"&cat="+urllib.quote_plus(cat)+"&filtrs="+urllib.quote_plus(filtrs)+"&page="+num+"&listpage="+urllib.quote_plus(listpage)
+                u = sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus(name)+"&type="+urllib.parse.quote_plus(type)+"&cat="+urllib.parse.quote_plus(cat)+"&filtrs="+urllib.parse.quote_plus(filtrs)+"&page="+num+"&listpage="+urllib.parse.quote_plus(listpage)
                 xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True, totalItems) 
 
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
@@ -285,7 +285,7 @@ def seriesList(name,id,thumb):
             p_thumb = thumb
         
         li = xbmcgui.ListItem(p_name, iconImage = '', thumbnailImage = p_thumb)
-        u = sys.argv[0] + "?mode=3&name=" + urllib.quote_plus(p_name) + "&id=" + urllib.quote_plus(id)+ "&thumb=" + urllib.quote_plus(p_thumb) + "&id2=" + urllib.quote_plus(p_id2)
+        u = sys.argv[0] + "?mode=3&name=" + urllib.parse.quote_plus(p_name) + "&id=" + urllib.parse.quote_plus(id)+ "&thumb=" + urllib.parse.quote_plus(p_thumb) + "&id2=" + urllib.parse.quote_plus(p_id2)
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, False, totalItems)
     xbmcplugin.setContent(int(sys.argv[1]), 'episodes')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -510,39 +510,39 @@ id2 = '1'
 listpage = None
 
 try:
-    id2 = urllib.unquote_plus(params["id2"])
+    id2 = urllib.parse.unquote_plus(params["id2"])
 except:
     pass
 try:
-    thumb = urllib.unquote_plus(params["thumb"])
+    thumb = urllib.parse.unquote_plus(params["thumb"])
 except:
     pass
 try:
-    id = urllib.unquote_plus(params["id"])
+    id = urllib.parse.unquote_plus(params["id"])
 except:
     pass
 try:
-    page = urllib.unquote_plus(params["page"])
+    page = urllib.parse.unquote_plus(params["page"])
 except:
     pass
 try:
-    name = urllib.unquote_plus(params["name"])
+    name = urllib.parse.unquote_plus(params["name"])
 except:
     pass
 try:
-    type = urllib.unquote_plus(params["type"])
+    type = urllib.parse.unquote_plus(params["type"])
 except:
     pass
 try:
-    cat = urllib.unquote_plus(params["cat"])
+    cat = urllib.parse.unquote_plus(params["cat"])
 except:
     pass
 try:
-    filtrs = urllib.unquote_plus(params["filtrs"])
+    filtrs = urllib.parse.unquote_plus(params["filtrs"])
 except:
     pass
 try:
-    listpage = urllib.unquote_plus(params["listpage"])
+    listpage = urllib.parse.unquote_plus(params["listpage"])
 except:
     pass
 try:

@@ -2,7 +2,7 @@
 
 import music
 import xbmc, xbmcgui, xbmcplugin
-import urllib, urllib2, sys
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, sys
 
 def addList(lists):
     #name, mode, url, icon, info
@@ -25,7 +25,7 @@ def addList(lists):
             query.update(info)
             li.setInfo(type="Music",infoLabels=info)
             isFolder = False
-        u = "%s?%s" % (plugin, urllib.urlencode(query))
+        u = "%s?%s" % (plugin, urllib.parse.urlencode(query))
         xbmcplugin.addDirectoryItem(handle, u, li, isFolder, n)
     xbmcplugin.endOfDirectory(handle)
 

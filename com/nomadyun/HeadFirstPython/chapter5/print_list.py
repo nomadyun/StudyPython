@@ -25,9 +25,9 @@ def get_data(file_name):
         return(Athlete(data.pop(0),data.pop(0),data))
     
     except IOError as err:
-        print 'File Error:'+ str(err)
+        print('File Error:'+ str(err))
         return None
 
 if __name__ == '__main__':
     james = get_data('james.txt')
-    print james.name
+    print(james.name)

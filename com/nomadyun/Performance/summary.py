@@ -118,7 +118,7 @@ def get_FPS_report(rootDir, csvfile):
     mlist = getfiles(rootDir)
     # print mlist
     if len(mlist) == 0:
-        print "Please be sure the 'tmp' folder is NOT empty!"
+        print("Please be sure the 'tmp' folder is NOT empty!")
 
     csvfile = "reports/" + csvfile
     fsi = open(csvfile, 'wb')
@@ -134,7 +134,7 @@ def get_FPS_report(rootDir, csvfile):
     elif 'safari_fps' in csvfile.lower():
         t_list = getfiles_FPS_Safari(mlist)
     else:
-        print 'Cannot get any output data'
+        print('Cannot get any output data')
 
     if not t_list:
         fsi.close()
@@ -157,7 +157,7 @@ def get_KPI_report(rootDir):
     mlist = getfiles(rootDir)
     # print mlist
     if len(mlist) == 0:
-        print "Please be sure the 'tmp' folder is NOT empty!"
+        print("Please be sure the 'tmp' folder is NOT empty!")
 
     kpi_reports = getfiles_KPI(mlist)
     for i in kpi_reports:

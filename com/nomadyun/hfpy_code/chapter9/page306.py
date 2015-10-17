@@ -1,8 +1,8 @@
 
 import android
 
-from urllib import urlencode
-from urllib2 import urlopen
+from urllib.parse import urlencode
+from urllib.request import urlopen
 
 server_title  = 'Which server should I use?'
 server_msg    = "Please confirm the server address/name to use for your athlete's timing data:"

@@ -3,7 +3,7 @@
 import os
 import sys
 import xbmc
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import xbmcvfs
 import xbmcaddon
 import xbmcgui
@@ -12,12 +12,12 @@ import unicodedata
 import chardet
 
 import hashlib
-from httplib import HTTPConnection, OK
+from http.client import HTTPConnection, OK
 import struct
-from cStringIO import StringIO
+from io import StringIO
 import zlib
 import random
-from urlparse import urlparse
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import html5lib
 
@@ -40,12 +40,12 @@ SVP_REV_NUMBER = 1543
 CLIENTKEY = "SP,aerSP,aer %d &e(\xd7\x02 %s %s"
 RETRY = 3
 
-class AppURLopener(urllib.FancyURLopener):
+class AppURLopener(urllib.request.FancyURLopener):
     version = "XBMC(Kodi)-subtitle/%s" % __version__ #cf block default ua
-urllib._urlopener = AppURLopener()
+urllib.request._urlopener = AppURLopener()
 
 def log(module, msg):
-    xbmc.log((u"%s::%s - %s" % (__scriptname__,module,msg,)).encode('utf-8'),level=xbmc.LOGDEBUG )
+    xbmc.log(("%s::%s - %s" % (__scriptname__,module,msg,)).encode('utf-8'),level=xbmc.LOGDEBUG )
 
 def grapBlock(f, offset, size):
     f.seek(offset, 0)
@@ -164,7 +164,7 @@ def downloadSubs(fpath, lang):
                         return resp
                     else:
                         return ''
-                except Exception, e:
+                except Exception as e:
                     log(sys._getframe().f_code.co_name, "Failed to access %s" % (theurl))
     return ''
 
@@ -284,7 +284,7 @@ def CalcFileHash(a):
 def getSubByTitle(title, langs):
     subtitles_list = []
     url = 'http://sub.makedie.me/sub/?searchword=%s&utm_source=xbmc&utm_medium=xbmc&utm_campaign=search' % title
-    socket = urllib.urlopen( url )
+    socket = urllib.request.urlopen( url )
     data = socket.read()
     soup = BeautifulSoup(data, 'html5lib')
     socket.close()
@@ -299,7 +299,7 @@ def getSubByTitle(title, langs):
             #     version = match[3:].encode('utf-8').strip().replace('\n','')
             #     if version: name = version
             subtype = re.findall("格式：\s*([^\(]+)(?:\(\?\))*".decode('utf-8'), it.ul.li.text.strip())
-            if subtype and subtype[0] and subtype[0]!=u'\u4e0d\u660e':#不明
+            if subtype and subtype[0] and subtype[0]!='\u4e0d\u660e':#不明
                 name = '[' + subtype[0].encode('utf-8') + '] ' + name
             rating = str(int(it.ul.img['src'].split('/')[-1].split('.')[0])/20)
             match = it.find(text=re.compile("语言：".decode('utf-8')))
@@ -328,7 +328,7 @@ def getSubByTitle(title, langs):
             xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=listitem,isFolder=False)
 
 def rmtree(path):
-    if isinstance(path, unicode):
+    if isinstance(path, str):
         path = path.encode('utf-8')
     dirs, files = xbmcvfs.listdir(path)
     for dir in dirs:
@@ -397,11 +397,11 @@ def DownloadID(id):
         url = 'http://sub.makedie.me/download/%06d/%s' %(int(id[6:]), 'XBMC.SUBTITLE')
     else:
         url = 'http://shooter.cn/files/file3.php?hash=duei7chy7gj59fjew73hdwh213f&fileid=%s' % (id)
-        socket = urllib.urlopen( url )
+        socket = urllib.request.urlopen( url )
         data = socket.read()
         url = 'http://file0.shooter.cn%s' % (CalcFileHash(data))
     #log(sys._getframe().f_code.co_name ,"url is %s" % (url))
-    socket = urllib.urlopen( url )
+    socket = urllib.request.urlopen( url )
     data = socket.read()
     socket.close()
     header = data[:4]
@@ -469,14 +469,14 @@ if params['action'] == 'search' or params['action'] == 'manualsearch':
     item['episode']            = str(xbmc.getInfoLabel("VideoPlayer.Episode"))                   # Episode
     item['tvshow']             = xbmc.getInfoLabel("VideoPlayer.TVshowtitle")   # Show
     item['title']              = xbmc.getInfoLabel("VideoPlayer.OriginalTitle") # try to get original title
-    item['file_original_path'] = urllib.unquote(xbmc.Player().getPlayingFile().decode('utf-8'))  # Full path of a playing file
+    item['file_original_path'] = urllib.parse.unquote(xbmc.Player().getPlayingFile().decode('utf-8'))  # Full path of a playing file
     item['3let_language']      = []
 
     if 'searchstring' in params:
         item['mansearch'] = True
         item['mansearchstr'] = params['searchstring']
 
-    for lang in urllib.unquote(params['languages']).decode('utf-8').split(","):
+    for lang in urllib.parse.unquote(params['languages']).decode('utf-8').split(","):
         item['3let_language'].append(xbmc.convertLanguage(lang,xbmc.ISO_639_2))
 
     if item['title'] == "":

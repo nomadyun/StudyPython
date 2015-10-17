@@ -9,8 +9,8 @@ base_url = 'https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16
 variant_m3u8 = m3u8.load(base_url)  # this could also be an absolute filename
 if variant_m3u8.is_variant:
     for playlist in variant_m3u8.playlists:
-        print playlist.uri
-        print playlist.stream_info.bandwidth
+        print((playlist.uri))
+        print((playlist.stream_info.bandwidth))
 
 if __name__ == '__main__':
     pass

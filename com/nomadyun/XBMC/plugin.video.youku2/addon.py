@@ -4,12 +4,12 @@ import re
 import sys
 import json
 import gzip
-import urllib
-import urllib2
-import httplib
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+import http.client
 import base64
 import time
-from StringIO import StringIO
+from io import StringIO
 from xbmcswift2 import xbmc
 from xbmcswift2 import Plugin
 from xbmcswift2 import xbmcgui
@@ -56,12 +56,12 @@ def searchvideo(url):
               ('http://www.letv.com', 'letv'),
               ('http://v.pps.tv', 'pps'),
               ('http://www.tudou.com', 'tudou')]
-    kb = Keyboard('',u'请输入搜索关键字')
+    kb = Keyboard('','请输入搜索关键字')
     kb.doModal()
     if not kb.isConfirmed(): return
     sstr = kb.getText()
     if not sstr: return
-    url = url + urllib2.quote(sstr)
+    url = url + urllib.parse.quote(sstr)
     result = _http(url)
     movstr = re.findall(r'<div class="item">(.*?)<!--item end-->', result, re.S)
     vitempat = re.compile(
@@ -132,14 +132,14 @@ def showmovie(url):
     #filter movie by filters
     if 'change' in url:
         url = key
-        for k, v in filters[key].iteritems():
+        for k, v in filters[key].items():
             if '筛选' in k: continue
             fts = [m[1] for m in v]
             selitem = dialog.select(k, fts)
             if selitem is -1: return
             url = '{0}{1}'.format(url,v[selitem][0])
         url='{0}.html'.format(url)
-        print '*'*80, url
+        print('*'*80, url)
 
     if url in epcache: return epcache[url]
 
@@ -202,7 +202,7 @@ def showmovie(url):
     menus = []
     #0 is thunmnailimg, 1 is title, 2 is status, 3 is url
     for seq, m in enumerate(movies):
-        routeaddr = filter(lambda x: x[0] in m[3], maptuple)
+        routeaddr = [x for x in maptuple if x[0] in m[3]]
         menus.append({
             'label': '{0}. {1}【{2}】'.format(seq, m[1], m[2]).decode(
                 'utf-8') if m[0] else m[1].decode('utf-8'),
@@ -237,7 +237,7 @@ def showepisode(url):
         epiurlpart = url.replace('page', 'episode')
 
         #httplib can keepalive
-        conn = httplib.HTTPConnection(epiurlpart.split('/')[2])
+        conn = http.client.HTTPConnection(epiurlpart.split('/')[2])
         for elist in elists:
             epiurl = epiurlpart + '?divid={0}'.format(elist)
             conn.request('GET', '/%s' % '/'.join(epiurl.split('/')[3:]))
@@ -287,12 +287,12 @@ def _http(url):
     """
     open url
     """
-    req = urllib2.Request(url)
+    req = urllib.request.Request(url)
     req.add_header('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) {0}{1}'.
                    format('AppleWebKit/537.36 (KHTML, like Gecko) ',
                           'Chrome/28.0.1500.71 Safari/537.36'))
     req.add_header('Accept-encoding', 'gzip')
-    rsp = urllib2.urlopen(req, timeout=30)
+    rsp = urllib.request.urlopen(req, timeout=30)
     if rsp.info().get('Content-Encoding') == 'gzip':
         buf = StringIO(rsp.read())
         f = gzip.GzipFile(fileobj=buf)
@@ -327,7 +327,7 @@ class PlayUtil(object):
 
         # user select streamtype
         if len(streamfids) > 1:
-            selstypes = [k for k,v in stypes.iteritems() if v in streamfids]
+            selstypes = [k for k,v in stypes.items() if v in streamfids]
             selitem = dialog.select('清晰度', selstypes)
             if selitem is -1: return 'cancle'
             stype = stypes[selstypes[selitem]]
@@ -338,7 +338,7 @@ class PlayUtil(object):
         oip = movdat['ip']
         ep = movdat['ep']
         ep, token, sid = self._calc_ep2(video_id, ep)
-        query = urllib.urlencode(dict(
+        query = urllib.parse.urlencode(dict(
             vid=video_id, ts=int(time.time()), keyframe=1, type=ftype,
             ep=ep, oip=oip, ctype=12, ev=1, token=token, sid=sid,
         ))
@@ -403,9 +403,9 @@ class PlayUtil(object):
             temp_url = "http://data.video.qiyi.com/%s" % urls[i].split(
                 "/")[-1].split(".")[0] + ".ts"
             try:
-                req = urllib2.Request(temp_url)
-                urllib2.urlopen(req, timeout=30)
-            except urllib2.HTTPError as e:
+                req = urllib.request.Request(temp_url)
+                urllib.request.urlopen(req, timeout=30)
+            except urllib.error.HTTPError as e:
                 key = re.search(r'key=(.*)', e.geturl()).group(1)
             assert key
             urls[i] += "?key=%s" % key
@@ -439,7 +439,7 @@ class PlayUtil(object):
         sel = dialog.select('清晰度', [q[0] for q in qtyps])
         if sel is -1: return 'cancel'
         sinfo = streams[qtyps[sel][1]]
-        resp = urllib2.urlopen('http://g3.letv.cn/{0}'.format(
+        resp = urllib.request.urlopen('http://g3.letv.cn/{0}'.format(
             sinfo[2].replace('\\','')), timeout=30)
         movurl = resp.geturl()
         return movurl
@@ -456,7 +456,7 @@ class PlayUtil(object):
         #vtyps = {v['name']:v['id'] for v in infoj['fl']['fi']}
         vtyps = dict((v['name'],v['id']) for v in infoj['fl']['fi'])
         qtypid = vtyps['sd']
-        sels = [k for k,v in qtyps.iteritems() if v in vtyps]
+        sels = [k for k,v in qtyps.items() if v in vtyps]
         sel = dialog.select('清晰度', sels)
         surls = []
         urlpre = infoj['vl']['vi'][0]['ul']['ui'][-1]['url']
@@ -468,7 +468,7 @@ class PlayUtil(object):
                 '{0}getkey?format={1}&filename={2}&vid={3}&otype=json'.format(
                     murl, qtypid, fn, vid))
             skey = json.loads(sinfo.split('=')[1][:-1])['key']
-            surl = urllib2.urlopen(
+            surl = urllib.request.urlopen(
                 '%s%s?vkey=%s' % (urlpre, fn, skey), timeout=30).geturl()
             if not surl: break
             surls.append(surl)
@@ -500,7 +500,7 @@ class PlayUtil(object):
         return res
 
     def trans_e(self, a, c):
-        b = range(256)
+        b = list(range(256))
         f = 0
         result = ''
         h = 0

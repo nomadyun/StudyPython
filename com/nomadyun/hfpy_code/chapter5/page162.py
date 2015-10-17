@@ -34,22 +34,22 @@ unique_james = []
 for each_t in james:
     if each_t not in unique_james:
         unique_james.append(each_t)
-print(unique_james[0:3])
+print((unique_james[0:3]))
 
 unique_julie = []
 for each_t in julie:
     if each_t not in unique_julie:
         unique_julie.append(each_t)
-print(unique_julie[0:3])
+print((unique_julie[0:3]))
 
 unique_mikey = []
 for each_t in mikey:
     if each_t not in unique_mikey:
         unique_mikey.append(each_t)
-print(unique_mikey[0:3])
+print((unique_mikey[0:3]))
 
 unique_sarah = []
 for each_t in sarah:
     if each_t not in unique_sarah:
         unique_sarah.append(each_t)
-print(unique_sarah[0:3])
+print((unique_sarah[0:3]))

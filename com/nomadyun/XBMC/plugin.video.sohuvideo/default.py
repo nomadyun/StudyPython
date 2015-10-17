@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib2, urllib, urlparse, httplib, re, string, sys, os, gzip, StringIO
-import cookielib, datetime, time
+import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, urllib.parse, http.client, re, string, sys, os, gzip, io
+import http.cookiejar, datetime, time
 import ChineseKeyboard
 try:
     import simplejson
@@ -31,11 +31,11 @@ UserAgent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2
 # - translate to utf8
 ##################################################################################
 def getHttpData(url):
-    print "getHttpData: " + url
+    print("getHttpData: " + url)
     # setup proxy support
     proxy = __addon__.getSetting('http_proxy')
     type = 'http'
-    if proxy <> '':
+    if proxy != '':
         ptype = re.split(':', proxy)
         if len(ptype)<3:
             # full path requires by Python 2.4
@@ -44,10 +44,10 @@ def getHttpData(url):
         httpProxy = {type: proxy}
     else:
         httpProxy = {}
-    proxy_support = urllib2.ProxyHandler(httpProxy)
+    proxy_support = urllib.request.ProxyHandler(httpProxy)
     
     # setup cookie support
-    cj = cookielib.MozillaCookieJar(cookieFile)
+    cj = http.cookiejar.MozillaCookieJar(cookieFile)
     if os.path.isfile(cookieFile):
         cj.load(ignore_discard=True, ignore_expires=True)
     else:
@@ -55,20 +55,20 @@ def getHttpData(url):
             os.makedirs(os.path.dirname(cookieFile))
    
     # create opener for both proxy and cookie
-    opener = urllib2.build_opener(proxy_support, urllib2.HTTPCookieProcessor(cj))
+    opener = urllib.request.build_opener(proxy_support, urllib.request.HTTPCookieProcessor(cj))
     charset=''
-    req = urllib2.Request(url)
+    req = urllib.request.Request(url)
     req.add_header('User-Agent', UserAgent)
     try:
         response = opener.open(req)
-    except urllib2.HTTPError, e:
+    except urllib.error.HTTPError as e:
         httpdata = e.read()
-    except urllib2.URLError, e:
+    except urllib.error.URLError as e:
         httpdata = "IO Timeout Error"
     else:
         httpdata = response.read()
         if response.headers.get('content-encoding', None) == 'gzip':
-            httpdata = gzip.GzipFile(fileobj=StringIO.StringIO(httpdata)).read()
+            httpdata = gzip.GzipFile(fileobj=io.StringIO(httpdata)).read()
         charset = response.headers.getparam('charset')
         cj.save(cookieFile, ignore_discard=True, ignore_expires=True)
         response.close()
@@ -158,7 +158,7 @@ def rootList():
     
     name='电视直播'
     li=xbmcgui.ListItem('1. ' + name)
-    u=sys.argv[0]+"?mode=10&name="+urllib.quote_plus(name)
+    u=sys.argv[0]+"?mode=10&name="+urllib.parse.quote_plus(name)
     xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)
     
     i = 1
@@ -167,7 +167,7 @@ def rootList():
         if id in ('130'): order = '1'
         else: order = '7'
         li=xbmcgui.ListItem(str(i) + '. ' + name)
-        u=sys.argv[0]+"?mode=1&name="+urllib.quote_plus(name)+"&id="+urllib.quote_plus(id)+"&page=1"+"&cat="+"&area="+"&year="+"&p5="+"&p6="+"&p11="+"&order="+order 
+        u=sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus(name)+"&id="+urllib.parse.quote_plus(id)+"&page=1"+"&cat="+"&area="+"&year="+"&p5="+"&p6="+"&p11="+"&order="+order 
         xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
@@ -293,7 +293,7 @@ def progList(name,id,page,cat,area,year,p5,p6,p11,order):
             lxstr += '[/COLOR]'
                 
         li = xbmcgui.ListItem(name+'（第'+str(currpage)+'/'+str(totalpages)+'页）【' + lxstr + '/[COLOR FF00FFFF]' + searchDict(ORDER_LIST,order) + '[/COLOR]】（按此选择）')
-        u = sys.argv[0]+"?mode=4&name="+urllib.quote_plus(name)+"&id="+id+"&cat="+cat+"&area="+area+"&year="+year+"&p5="+p5+"&p6="+p6+"&p11="+p11+"&order="+"&listpage="+urllib.quote_plus(listpage)
+        u = sys.argv[0]+"?mode=4&name="+urllib.parse.quote_plus(name)+"&id="+id+"&cat="+cat+"&area="+area+"&year="+year+"&p5="+p5+"&p6="+p6+"&p11="+p11+"&order="+"&listpage="+urllib.parse.quote_plus(listpage)
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True, totalItems)
 
         for i in range(0,len(match)):
@@ -347,7 +347,7 @@ def progList(name,id,page,cat,area,year,p5,p6,p11,order):
                 p_res = 0
 
             li = xbmcgui.ListItem(str(i + 1) + '. ' + p_name1, iconImage = '', thumbnailImage = p_thumb)
-            u = sys.argv[0]+"?mode="+str(mode)+"&name="+urllib.quote_plus(p_name)+"&url="+urllib.quote_plus(p_url)+"&thumb="+urllib.quote_plus(p_thumb)+"&id="+urllib.quote_plus(str(i))
+            u = sys.argv[0]+"?mode="+str(mode)+"&name="+urllib.parse.quote_plus(p_name)+"&url="+urllib.parse.quote_plus(p_url)+"&thumb="+urllib.parse.quote_plus(p_thumb)+"&id="+urllib.parse.quote_plus(str(i))
             li.setInfo(type = "Video", infoLabels = {"Title":p_name, "Director":p_director, "Genre":p_genre, "Plot":p_plot, "Year":p_year, "Rating":p_rating, "Votes":p_votes})
             xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, p_dir, totalItems)
     
@@ -355,7 +355,7 @@ def progList(name,id,page,cat,area,year,p5,p6,p11,order):
         if matchpages:
             for num in matchpages:
                 li = xbmcgui.ListItem("... 第" + num + "页")
-                u=sys.argv[0]+"?mode=1&name="+urllib.quote_plus(name)+"&id="+id+"&page="+str(num)+"&cat="+cat+"&area="+area+"&year="+year+"&p5="+p5+"&p6="+p6+"&p11="+p11+"&order="+order 
+                u=sys.argv[0]+"?mode=1&name="+urllib.parse.quote_plus(name)+"&id="+id+"&page="+str(num)+"&cat="+cat+"&area="+area+"&year="+year+"&p5="+p5+"&p6="+p6+"&p11="+p11+"&order="+order 
                 xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True, totalItems)
         xbmcplugin.setContent(int(sys.argv[1]), 'movies')
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -380,7 +380,7 @@ def seriesList(name, id,url,thumb):
             p_name = '%s第%s集' % (name, p_order)
             li = xbmcgui.ListItem(p_name, iconImage = '', thumbnailImage = p_thumb)
             li.setInfo(type="Video",infoLabels={"Title":p_name, "episode":int(p_order)})
-            u = sys.argv[0] + "?mode=3&name=" + urllib.quote_plus(p_name) + "&url=" + urllib.quote_plus(p_url)+ "&thumb=" + urllib.quote_plus(p_thumb)
+            u = sys.argv[0] + "?mode=3&name=" + urllib.parse.quote_plus(p_name) + "&url=" + urllib.parse.quote_plus(p_url)+ "&thumb=" + urllib.parse.quote_plus(p_thumb)
             xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, False, totalItems)       
     else:
         match0 = re.compile('var pid\s*=\s*(.+?);', re.DOTALL).findall(link)
@@ -407,7 +407,7 @@ def seriesList(name, id,url,thumb):
                 p_date = datetime.date.fromtimestamp(float(p_time)/1000).strftime('%d.%m.%Y')
                 li = xbmcgui.ListItem(p_name, iconImage = '', thumbnailImage = p_thumb)
                 li.setInfo(type="Video",infoLabels={"Title":p_name, "date":p_date, "episode":int(p_order)})
-                u = sys.argv[0] + "?mode=3&name=" + urllib.quote_plus(p_name) + "&url=" + urllib.quote_plus(p_url)+ "&thumb=" + urllib.quote_plus(p_thumb)
+                u = sys.argv[0] + "?mode=3&name=" + urllib.parse.quote_plus(p_name) + "&url=" + urllib.parse.quote_plus(p_url)+ "&thumb=" + urllib.parse.quote_plus(p_thumb)
                 xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, False, totalItems)
         else:
             match = re.compile('<a([^>]*)><IMG([^>]*)></a>',re.I).findall(link)
@@ -425,7 +425,7 @@ def seriesList(name, id,url,thumb):
                     p_thumb = match[i][1]
                 thumbDict[p_url]=p_thumb
             #for img in thumbDict.items():
-            url = 'http://so.tv.sohu.com/mts?c=2&wd=' + urllib.quote_plus(name.decode('utf-8').encode('gbk'))
+            url = 'http://so.tv.sohu.com/mts?c=2&wd=' + urllib.parse.quote_plus(name.decode('utf-8').encode('gbk'))
             html = getHttpData(url)
             match =  re.compile('class="serie-list(.+?)</div>').findall(html)
             if not match:
@@ -440,7 +440,7 @@ def seriesList(name, id,url,thumb):
                     p_url = href[0]
                     urlKey = re.compile('u=(http.+?.shtml)').search(p_url)
                     if urlKey:
-                        urlKey = urllib.unquote(urlKey.group(1))
+                        urlKey = urllib.parse.unquote(urlKey.group(1))
                     else:
                         urlKey = p_url
                     #print urlKey
@@ -454,7 +454,7 @@ def seriesList(name, id,url,thumb):
                         #p_name = title[0]
                     p_name = name + '第' + item[1].strip() + '集'
                     li = xbmcgui.ListItem(p_name, iconImage = p_thumb, thumbnailImage = p_thumb)
-                    u = sys.argv[0] + "?mode=3&name="+urllib.quote_plus(p_name)+"&id="+id+"&url="+urllib.quote_plus(p_url)+"&thumb="+urllib.quote_plus(p_thumb)
+                    u = sys.argv[0] + "?mode=3&name="+urllib.parse.quote_plus(p_name)+"&id="+id+"&url="+urllib.parse.quote_plus(p_url)+"&thumb="+urllib.parse.quote_plus(p_thumb)
                     xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, False)
     xbmcplugin.setContent(int(sys.argv[1]), 'episodes')
     xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_EPISODE)
@@ -587,7 +587,7 @@ def searchSohu():
     if (keyboard.isConfirmed()):
         keyword = keyboard.getText()
         p_url = 'http://so.tv.sohu.com/mts?chl=&tvType=-2&wd='
-        url = p_url + urllib.quote_plus(keyword.decode('utf-8').encode('gb2312'))
+        url = p_url + urllib.parse.quote_plus(keyword.decode('utf-8').encode('gb2312'))
         sohuSearchList(keyword,url,'1')
     else: return
         
@@ -603,7 +603,7 @@ def sohuSearchList(name, url, page):
     link = getHttpData(p_url)
 
     li = xbmcgui.ListItem('[COLOR FFFF0000]当前搜索: 第' + page + '页[/COLOR][COLOR FFFFFF00] (' + name + ')[/COLOR]【[COLOR FF00FF00]' + '请输入新搜索内容' + '[/COLOR]】')
-    u = sys.argv[0] + "?mode=21&name=" + urllib.quote_plus(name) + "&url=" + urllib.quote_plus(url) + "&page=" + urllib.quote_plus(page)
+    u = sys.argv[0] + "?mode=21&name=" + urllib.parse.quote_plus(name) + "&url=" + urllib.parse.quote_plus(url) + "&page=" + urllib.parse.quote_plus(page)
     xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True)
     
     #########################################################################
@@ -626,7 +626,7 @@ def sohuSearchList(name, url, page):
         p_thumb = match1.group(1)
 
         match1 = re.compile('<span class="maskTx">(.*?)</span>').search(vlink)
-        if match1 and match1.group(1)<>'':
+        if match1 and match1.group(1)!='':
             p_label = ' [' + match1.group(1) + ']'
         else:
             p_label =''
@@ -650,7 +650,7 @@ def sohuSearchList(name, url, page):
         k+=1
         p_list = str(k) + ': ' + p_name + p_type + p_label
         li = xbmcgui.ListItem(p_list, iconImage=p_thumb, thumbnailImage=p_thumb)
-        u = sys.argv[0] + "?mode=" + mode + "&name=" + urllib.quote_plus(p_name) + "&id=101" + "&url=" + urllib.quote_plus(p_url) + "&thumb=" + urllib.quote_plus(p_thumb)
+        u = sys.argv[0] + "?mode=" + mode + "&name=" + urllib.parse.quote_plus(p_name) + "&id=101" + "&url=" + urllib.parse.quote_plus(p_url) + "&thumb=" + urllib.parse.quote_plus(p_thumb)
   
         xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, isTeleplay, totalItems)
  
@@ -710,7 +710,7 @@ def PlayVideo(name,url,thumb):
         rate = int(ratelist[0][1])
         if rate > level + 1:
             rate = level + 1
-    if match.group(int(rate))<>str(p_vid):
+    if match.group(int(rate))!=str(p_vid):
         link = getHttpData('http://hot.vrs.sohu.com/vrs_flash.action?vid='+match.group(int(rate)))
     match = re.compile('"tvName":"(.+?)"').findall(link)
     if not match:
@@ -759,14 +759,14 @@ def LiveChannel():
         totalItems = len(parsed_json['STATIONS'])
         i = 0
         for item in parsed_json['STATIONS']:
-            if item['IsSohuSource'] <> 1 or item['TV_TYPE'] <> 1:
+            if item['IsSohuSource'] != 1 or item['TV_TYPE'] != 1:
                 continue
             p_name = item['STATION_NAME'].encode('utf-8')
             p_thumb = item['STATION_PIC'].encode('utf-8')
             id = str(item['STATION_ID'])
             i += 1
             li = xbmcgui.ListItem(str(i)+ '. ' + p_name, iconImage = '', thumbnailImage = p_thumb)
-            u = sys.argv[0] + "?mode=11&name=" + urllib.quote_plus(p_name) + "&id=" + urllib.quote_plus(id)+ "&thumb=" + urllib.quote_plus(p_thumb)
+            u = sys.argv[0] + "?mode=11&name=" + urllib.parse.quote_plus(p_name) + "&id=" + urllib.parse.quote_plus(id)+ "&thumb=" + urllib.parse.quote_plus(p_thumb)
             xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, False, totalItems)
     xbmcplugin.setContent(int(sys.argv[1]), 'movies')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -821,55 +821,55 @@ url = None
 thumb = None
 
 try:
-    thumb = urllib.unquote_plus(params["thumb"])
+    thumb = urllib.parse.unquote_plus(params["thumb"])
 except:
     pass
 try:
-    url = urllib.unquote_plus(params["url"])
+    url = urllib.parse.unquote_plus(params["url"])
 except:
     pass
 try:
-    page = urllib.unquote_plus(params["page"])
+    page = urllib.parse.unquote_plus(params["page"])
 except:
     pass
 try:
-    listpage = urllib.unquote_plus(params["listpage"])
+    listpage = urllib.parse.unquote_plus(params["listpage"])
 except:
     pass
 try:
-    p5 = urllib.unquote_plus(params["p5"])
+    p5 = urllib.parse.unquote_plus(params["p5"])
 except:
     pass
 try:
-    p6 = urllib.unquote_plus(params["p6"])
+    p6 = urllib.parse.unquote_plus(params["p6"])
 except:
     pass
 try:
-    p11 = urllib.unquote_plus(params["p11"])
+    p11 = urllib.parse.unquote_plus(params["p11"])
 except:
     pass
 try:
-    order = urllib.unquote_plus(params["order"])
+    order = urllib.parse.unquote_plus(params["order"])
 except:
     pass
 try:
-    year = urllib.unquote_plus(params["year"])
+    year = urllib.parse.unquote_plus(params["year"])
 except:
     pass
 try:
-    area = urllib.unquote_plus(params["area"])
+    area = urllib.parse.unquote_plus(params["area"])
 except:
     pass
 try:
-    cat = urllib.unquote_plus(params["cat"])
+    cat = urllib.parse.unquote_plus(params["cat"])
 except:
     pass
 try:
-    id = urllib.unquote_plus(params["id"])
+    id = urllib.parse.unquote_plus(params["id"])
 except:
     pass
 try:
-    name = urllib.unquote_plus(params["name"])
+    name = urllib.parse.unquote_plus(params["name"])
 except:
     pass
 try:

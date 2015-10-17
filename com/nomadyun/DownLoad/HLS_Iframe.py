@@ -6,7 +6,7 @@ Test
 '''
 
 import re, os, threading,time
-import urllib, urllib2
+import urllib.request, urllib.parse, urllib.error
 
 
 # import socket
@@ -29,16 +29,16 @@ m3u8_list = []
 ts_list = []
 
 def M3U8Paser(URI):
-    req = urllib2.Request(URI)
+    req = urllib.request.Request(URI)
     try: 
-        response = urllib2.urlopen(req, timeout=10)
-    except urllib2.URLError, e:        
+        response = urllib.request.urlopen(req, timeout=10)
+    except urllib.error.URLError as e:        
         if hasattr(e, 'code'):            
-            print 'The server couldn\'t fulfill the request.'           
-            print 'Error code: ', e.code          
+            print('The server couldn\'t fulfill the request.')           
+            print(('Error code: ', e.code))          
         elif hasattr(e, 'reason'):           
-            print 'We failed to reach a server.'           
-            print 'Reason: ', e.reason    
+            print('We failed to reach a server.')           
+            print(('Reason: ', e.reason))    
     else:    
         content = response.readlines()
         for line in content:
@@ -50,7 +50,7 @@ def M3U8Paser(URI):
                 # print line
                 sub_m3u8 = m_m3u8.group(0)
                 sub_m3u8_url = urlRoot + sub_m3u8 + token
-                print sub_m3u8_url
+                print(sub_m3u8_url)
                 M3U8Paser(sub_m3u8_url)
                     
             elif m_ts:
@@ -64,8 +64,8 @@ def M3U8Paser(URI):
                 if not os.path.exists(dir_name):
                     os.makedirs(dir_name)
                 os.chdir(dir_name)
-                print 'Files will be downloaded to:' + '' + os.getcwd()        
-                print 'Downloading:' + ts             
+                print(('Files will be downloaded to:' + '' + os.getcwd()))        
+                print(('Downloading:' + ts))             
                 t = downloader(ts_url, ts_name)
                 time.sleep(1)
                 threads.append(t)
@@ -79,8 +79,8 @@ class downloader(threading.Thread):
 
         def run(self):
             f = open(self.name, 'wb') 
-            urllib.urlretrieve(self.url, self.name)
-            print 'download complete %s' % self.name            
+            urllib.request.urlretrieve(self.url, self.name)
+            print(('download complete %s' % self.name))            
             f.close()
 
 threads = []

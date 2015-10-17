@@ -1,26 +1,26 @@
 # -*- coding:utf-8 -*-
-import urllib2
-import urllib
-import cookielib
-import StringIO,gzip,re
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
+import http.cookiejar
+import io,gzip,re
 
 patten = re.compile(r'(?<=notificationUrl":")/auth/service\?userId=\d+&_sign=\S+&session=\S+&nonce=\S+(?="})')
 account_url = 'https://account.xiaomi.com'
 home_url = 'https://account.xiaomi.com/pass/auth/security/home?userId='
 
-class RedirctHandler(urllib2.HTTPRedirectHandler):
+class RedirctHandler(urllib.request.HTTPRedirectHandler):
 	def http_error_301(self, req, fp, code, msg, headers):
 		pass
 	def http_error_302(self, req, fp, code, msg, headers):
 		pass
 #处理cookie,得到一个cookieJar实例
-cookieJar = cookielib.LWPCookieJar()
-cookieHand = urllib2.HTTPCookieProcessor(cookieJar)
-opener = urllib2.build_opener(cookieHand,urllib2.HTTPHandler)
-urllib2.install_opener(opener)
+cookieJar = http.cookiejar.LWPCookieJar()
+cookieHand = urllib.request.HTTPCookieProcessor(cookieJar)
+opener = urllib.request.build_opener(cookieHand,urllib.request.HTTPHandler)
+urllib.request.install_opener(opener)
 
 def gzdecode(data) :
-	compressedstream = StringIO.StringIO(data)  
+	compressedstream = io.StringIO(data)  
 	gziper = gzip.GzipFile(fileobj=compressedstream)    
 	data2 = gziper.read()   # 读取解压缩后数据   
 	return data2
@@ -71,38 +71,38 @@ class Mi:
 		    '_sign':'KKkRvCpZoDC+gLdeyOsdMhwV0Xg=',
             'serviceParam':'{"checkSafePhone":false}'
 		}
-		postData = urllib.urlencode(postData)	
+		postData = urllib.parse.urlencode(postData)	
 		try:
 			#urllib2.urlopen(login_url)
-			req = urllib2.Request(url = post_url,data = postData,headers = headers)
-			res = urllib2.urlopen(req)
+			req = urllib.request.Request(url = post_url,data = postData,headers = headers)
+			res = urllib.request.urlopen(req)
 			for cookie in cookieJar:
 				#list转换为string
 				cookie = str(cookie)
-				print cookie
+				print(cookie)
 			content = res.read()
 			match = patten.search(content)
 			# If-statement after search() tests if it succeeded 
 			if match:                    
-				print 'Login Success'
+				print('Login Success')
 				re_url = account_url + match.group()
-				print re_url
+				print(re_url)
 			else:
-				print 'Failed to login!'
+				print('Failed to login!')
 
 			#result = res.read()
 			#print result
 			#self.buying()
-		except Exception,e:
-			print str(e)
-		url1 = urllib2.Request(url = re_url,data = None,headers = headers)
-		url1_res = urllib2.urlopen(url1)
+		except Exception as e:
+			print((str(e)))
+		url1 = urllib.request.Request(url = re_url,data = None,headers = headers)
+		url1_res = urllib.request.urlopen(url1)
 		#url2 = urllib2.urlopen(home_url,timeout = 2)
 		page1 = url1_res.read()
-		print page1
+		print(page1)
 		#print url2.geturl()
-		url2 = urllib2.Request(url = main_url,data = None,headers = headers)
-		url2_res = urllib2.urlopen(url2)
+		url2 = urllib.request.Request(url = main_url,data = None,headers = headers)
+		url2_res = urllib.request.urlopen(url2)
 		#url2 = urllib2.urlopen(home_url,timeout = 2)
 		#page2 = gzdecode(url2_res.read())
 		#print page2

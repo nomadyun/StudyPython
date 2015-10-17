@@ -29,7 +29,7 @@ def make_omelet(omelet_type):
             ingredients['spinach'] = 2
         
         else:
-            print 'That’s not on the menu, sorry!'
+            print('That’s not on the menu, sorry!')
             return None
         
         return ingredients      
@@ -37,7 +37,7 @@ def make_omelet(omelet_type):
     # get_omelet_ingredients function here. They are not being
     # included here for brevity’s sake
     if type(omelet_type) == type({}):
-        print 'omelet_type is a dictionary with ingredients'
+        print('omelet_type is a dictionary with ingredients')
         
         return make_food(omelet_type, 'omelet')
     
@@ -47,16 +47,16 @@ def make_omelet(omelet_type):
         
         return make_food(omelet_ingredients, omelet_type)
     else:
-        print 'I don’t think I can make this kind of omelet: %s' % omelet_type
+        print('I don’t think I can make this kind of omelet: %s' % omelet_type)
         
 def make_food(ingredients_needed, food_name):
     '''make_food(ingredients_needed, food_name)
     Takes the ingredients from ingredients_needed and makes food_name'''
     
-    for ingredient in ingredients_needed.keys():
-        print 'Adding %d of %s to make a %s' % (ingredients_needed[ingredient],
-                                                ingredient, food_name)
-        print 'Made %s' % food_name
+    for ingredient in list(ingredients_needed.keys()):
+        print('Adding %d of %s to make a %s' % (ingredients_needed[ingredient],
+                                                ingredient, food_name))
+        print('Made %s' % food_name)
         return food_name
     
 if __name__== '__main__':

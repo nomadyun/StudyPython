@@ -23,14 +23,14 @@ with open('PaceData.csv') as paces:
             inner_dict[row[i]] = column_headings[i]
         row_data[row_label] = inner_dict
 
-distance_run = input('Enter the distance attempted: ')
-recorded_time = input('Enter the recorded time: ')
-predicted_distance = input('Enter the distance you want a prediction for: ')
+distance_run = eval(input('Enter the distance attempted: '))
+recorded_time = eval(input('Enter the recorded time: '))
+predicted_distance = eval(input('Enter the distance you want a prediction for: '))
 
 closest_time = find_nearest_time(recorded_time, row_data[distance_run])
 closest_column_heading = row_data[distance_run][closest_time]
 
-prediction = [k for k in row_data[predicted_distance].keys()
+prediction = [k for k in list(row_data[predicted_distance].keys())
                   if row_data[predicted_distance][k] == closest_column_heading]
 
-print('The predicted time running ' + predicted_distance + ' is: ' + prediction[0] + '.')
+print(('The predicted time running ' + predicted_distance + ' is: ' + prediction[0] + '.'))

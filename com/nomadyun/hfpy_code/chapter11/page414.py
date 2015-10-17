@@ -14,7 +14,7 @@ with open('PaceData.csv') as paces:
             inner_dict[format_time(row[i])] = column_headings[i]
         row_data[row_label] = inner_dict
 
-distance_run = input('Enter the distance attempted: ')
-recorded_time = input('Enter the recorded time: ')
-predicted_distance = input('Enter the distance you want a prediction for: ')
+distance_run = eval(input('Enter the distance attempted: '))
+recorded_time = eval(input('Enter the recorded time: '))
+predicted_distance = eval(input('Enter the distance you want a prediction for: '))
 

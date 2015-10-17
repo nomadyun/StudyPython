@@ -81,7 +81,7 @@ def sortFile(originalLog, newLog):
         else:
             fs1 = open(newLog, 'wb')
     except Exception as e:
-        print "**********", e
+        print("**********", e)
 
     while True:
         line = fs.readline()
@@ -108,7 +108,7 @@ def updateFile(newLog, updatedLog):
         fsi = open(updatedLog, 'wb')
         fso = open(newLog, 'rb')
     except Exception as e:
-        print "**********", e
+        print("**********", e)
 
     t_line = ""
     sid = 0
@@ -151,7 +151,7 @@ def segmentLog_URL(logfile):
         if result:
             tempList.reverse()
             dictKey = result.group(1)
-            if dictKey in logDict.keys():
+            if dictKey in list(logDict.keys()):
                 increment += 1
                 dictKey = dictKey + "^" + str(increment)
             logDict[dictKey] = tempList
@@ -160,17 +160,17 @@ def segmentLog_URL(logfile):
             continue
     # print logDict
     fs.close()
-    mitems = logDict.items()
+    mitems = list(logDict.items())
     mitems.reverse()
     return OrderedDict(mitems)
 
 def getClips():
     dict = segmentLog_URL('KPI_log_1')
     clip_list = []
-    mitems = dict.items()
+    mitems = list(dict.items())
 
     inc = 0
-    for ky in OrderedDict(mitems).keys():
+    for ky in list(OrderedDict(mitems).keys()):
         if inc == 3:
             # The test clip is used for the 2 seek operation in scenario: 'Seek in VOD'
             clip_list.append(ky.split("^")[0])
@@ -203,14 +203,14 @@ def segmentLog_SC(logfile):
             continue
     # print logDict
     fs.close()
-    mitems = logDict.items()
+    mitems = list(logDict.items())
     mitems.reverse()
     return OrderedDict(mitems)
 
 # Get the target data
 def get_list():
     result_list = []
-    for k, v in segmentLog_SC('KPI_log_1').items():
+    for k, v in list(segmentLog_SC('KPI_log_1').items()):
         # print k, v
         if str(k) in scenarios_log_list[0]:
             result1 = re.search(pattern_Open, str(v))
@@ -362,7 +362,7 @@ def get_report(original_log, kpi_result):
     res_list.append(records)
     # print res_list
 
-    res_list = map(list, zip(*res_list))
+    res_list = list(map(list, list(zip(*res_list))))
     # print res_list
 
     # write result to CSV file

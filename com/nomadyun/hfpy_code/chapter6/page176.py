@@ -14,12 +14,12 @@ def get_coach_data(filename):
             data = f.readline()
         return(data.strip().split(','))
     except IOError as ioerr:
-        print('File error: ' + str(ioerr))
+        print(('File error: ' + str(ioerr)))
         return(None)
     
 sarah = get_coach_data('sarah2.txt')
 
 (sarah_name, sarah_dob) = sarah.pop(0), sarah.pop(0)
 
-print(sarah_name + "'s fastest times are: " +
-        str(sorted(set([sanitize(t) for t in sarah]))[0:3]))
+print((sarah_name + "'s fastest times are: " +
+        str(sorted(set([sanitize(t) for t in sarah]))[0:3])))

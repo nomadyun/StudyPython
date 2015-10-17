@@ -2,7 +2,7 @@
 
 import DoubanFM
 import xbmcplugin,xbmcgui,xbmc
-import urllib,urllib2,re,os
+import urllib.request, urllib.parse, urllib.error,urllib.request,urllib.error,urllib.parse,re,os
 
 def CATEGORIES():
     channels = DoubanFM.GetChannels()
@@ -24,7 +24,7 @@ def PlayList(url):
         listitem.setThumbnailImage(pic)
         playlist.add(url, listitem)
 
-    print 'Added '+str(playlist.size()) + ' songs'
+    print('Added '+str(playlist.size()) + ' songs')
     xbmc.Player().play(playlist)
 
 def get_params():
@@ -46,7 +46,7 @@ def get_params():
     return param
 
 def addLink(name,url,mode,totalItems):
-    u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+    u=sys.argv[0]+"?url="+urllib.parse.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)
     liz=xbmcgui.ListItem(name)
     liz.setInfo( type="Music", infoLabels={ "Title": name } )
     xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,liz, False, totalItems)
@@ -57,11 +57,11 @@ name=None
 mode=None
 
 try:
-    url=urllib.unquote_plus(params["url"])
+    url=urllib.parse.unquote_plus(params["url"])
 except:
     pass
 try:
-    name=urllib.unquote_plus(params["name"])
+    name=urllib.parse.unquote_plus(params["name"])
 except:
     pass
 try:
@@ -69,12 +69,12 @@ try:
 except:
     pass
 
-print "Current select: "+"Mode: "+str(mode) + "  URL: "+str(url) + "  Name: "+str(name)
+print("Current select: "+"Mode: "+str(mode) + "  URL: "+str(url) + "  Name: "+str(name))
 if mode==None:
-    print "CATEGORIES()"
+    print("CATEGORIES()")
     CATEGORIES()
 elif mode==1:
-    print "PlayList()"
+    print("PlayList()")
     PlayList(url) 
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

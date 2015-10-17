@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys,urllib2,urllib,re,json,time
+import sys,urllib.request,urllib.error,urllib.parse,urllib.request,urllib.parse,urllib.error,re,json,time
 from pprint import pprint
 userAgent = 'Opera/9.80 (Android 2.3.4; Linux; Opera Mobi/build-1107180945; U; en-GB) Presto/2.8.149 Version/11.10'
 homepage = 'http://m.kugou.com'
 headers = {'User-Agent': userAgent, 'Referer': homepage}
 
 def getHttpData(u, query):
-    url = '%s/app/i/%s?%s' % (homepage, u, urllib.urlencode(query))
-    req = urllib2.Request(url, headers = headers)
-    response = urllib2.urlopen(req)
+    url = '%s/app/i/%s?%s' % (homepage, u, urllib.parse.urlencode(query))
+    req = urllib.request.Request(url, headers = headers)
+    response = urllib.request.urlopen(req)
     httpdata = response.read()
     response.close()
     return httpdata

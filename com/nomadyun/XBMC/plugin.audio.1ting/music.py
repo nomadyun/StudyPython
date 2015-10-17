@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import urllib2, re, json
+import urllib.request, urllib.error, urllib.parse, re, json
 from bs4 import BeautifulSoup
 from xml.sax.saxutils import unescape
 
@@ -49,9 +49,9 @@ def isFolder(mode):
 
 def request(url, soup = True):
     if not url.startswith('http'): url = webHtml + url
-    print('request', url)
-    req = urllib2.Request(url)           # create one connection
-    response = urllib2.urlopen(req)      # get the response
+    print(('request', url))
+    req = urllib.request.Request(url)           # create one connection
+    response = urllib.request.urlopen(req)      # get the response
     if not response: return
     cont = response.read()        # get all the webpage html data in string
     response.close()
@@ -59,9 +59,9 @@ def request(url, soup = True):
 
 def getSongUrl(url):
     if not url: return
-    req = urllib2.Request(songBasehtml + url)
+    req = urllib.request.Request(songBasehtml + url)
     req.add_header("Cookie", "PIN=cnGQFFSRmPRxcDj2aUSnAg==")
-    url = urllib2.urlopen(req).geturl()
+    url = urllib.request.urlopen(req).geturl()
     return url
 
 def getSongList(url):
@@ -245,4 +245,4 @@ def getList(pMode, url):
 
 if __name__ == '__main__':
     for i in getSingerAlbum("/singer/502/album/"):
-        print i
+        print(i)

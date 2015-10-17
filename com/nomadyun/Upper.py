@@ -8,7 +8,7 @@ def copy():
     try:
         inputFile = open('small.txt','r')
     except IOError:
-        print 'Open File failed.'
+        print('Open File failed.')
     outputFile = open('upper.txt','w')
     lineList = inputFile.readlines()
     for line in lineList:

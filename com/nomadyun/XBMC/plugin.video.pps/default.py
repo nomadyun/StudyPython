@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
-import urllib2, urllib, re, sys, os
+import urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, re, sys, os
 import zipfile
 import ChineseKeyboard
 
@@ -54,15 +54,15 @@ ListOmit ="爱频道 - 我的频道"
 # - translate to utf8 if possible
 ##################################################################################
 def getHttpData(url):
-    print "getHttpData: " + url
-    req = urllib2.Request(url)
+    print("getHttpData: " + url)
+    req = urllib.request.Request(url)
     req.add_header('User-Agent', UserAgent)
     req.add_header("Referer","www.soso.com")
     try:
-        response = urllib2.urlopen(req)
-    except urllib2.HTTPError, e:
+        response = urllib.request.urlopen(req)
+    except urllib.error.HTTPError as e:
         httpdata = e.read()
-    except urllib2.URLError, e:
+    except urllib.error.URLError as e:
         httpdata = "IO Timeout Error"
     else:
         httpdata = response.read()
@@ -73,7 +73,7 @@ def getHttpData(url):
     if len(match):
         charset = match[0].lower()
         if (charset != 'utf-8') and (charset != 'utf8'):
-            httpdata = unicode(httpdata, charset,'replace').encode('utf8')
+            httpdata = str(httpdata, charset,'replace').encode('utf8')
     return httpdata
 
 ##################################################################################
@@ -96,17 +96,17 @@ def read_xml(id,type=1):
         #url= "http://list1.ppstv.com/schs/"+id+".xml.zip" #文件列表    
         #url= "http://list3.ppstv.com/schs/"+id+".xml.zip" #文件列表    
         url= "http://list3.pps.tv/schs/"+id+".xml.zip" #文件列表    
-    print 'xml_zip: ' + url
+    print('xml_zip: ' + url)
     
     try:
-        dfile=urllib.urlretrieve(url, 'tmpxml.zip')
+        dfile=urllib.request.urlretrieve(url, 'tmpxml.zip')
         z = zipfile.ZipFile(dfile[0],'r')    
     except: # second trial
-        dfile=urllib.urlretrieve(url, 'tmpxml.zip')
+        dfile=urllib.request.urlretrieve(url, 'tmpxml.zip')
         z = zipfile.ZipFile(dfile[0],'r')
         
     text = z.read(id+".xml")
-    text = unicode(text, 'gb18030','replace').encode('utf8')
+    text = str(text, 'gb18030','replace').encode('utf8')
     #text = text.decode('GB18030').encode('UTF-8')
     text = text.replace('gb18030', 'utf-8')
     text = text.replace('GB18030', 'utf-8')
@@ -136,13 +136,13 @@ def menu_main(id,category=''):
         j += 1
         li=xbmcgui.ListItem('[COLOR FF00FF00][ ' + name + ' ][/COLOR]')
         li.setInfo( type="Video", infoLabels={"Title":name, "Episode":orderID})
-        u=sys.argv[0]+"?mode=gen&name="+urllib.quote_plus(name.encode('utf-8'))+"&id="+id+"&category="+urllib.quote_plus(catType)
+        u=sys.argv[0]+"?mode=gen&name="+urllib.parse.quote_plus(name.encode('utf-8'))+"&id="+id+"&category="+urllib.parse.quote_plus(catType)
         xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)
 
     #添加一个“PPS搜索”
     li = xbmcgui.ListItem('[COLOR FFFF00FF]PPS.TV 网络电视[/COLOR][COLOR FFFFFF00] (主页) [/COLOR][COLOR FF00FFFF]共计：'+str(j)+'[/COLOR]【[COLOR FF00FF00]点此输入搜索内容[/COLOR]】')
     li.setInfo(type="Video", infoLabels={"Title":name, "Episode":1})
-    u=sys.argv[0]+"?mode=search&name="+urllib.quote_plus('PPS搜索')
+    u=sys.argv[0]+"?mode=search&name="+urllib.parse.quote_plus('PPS搜索')
     xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)
 
     xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_EPISODE)
@@ -228,7 +228,7 @@ def menu_sub(name,id,category):
             li=xbmcgui.ListItem(p_list)
   
         li.setInfo( type="Video", infoLabels={"Title":name, "count":on, "Rating":vm})
-        u=sys.argv[0]+"?mode=sub&name="+name+"&id="+p_id+"&rating="+str(vm)+"&category="+urllib.quote_plus(catType)+"&thumb="+p_thumb
+        u=sys.argv[0]+"?mode=sub&name="+name+"&id="+p_id+"&rating="+str(vm)+"&category="+urllib.parse.quote_plus(catType)+"&thumb="+p_thumb
         xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)
         j+=1 # increment only if everything is OK
 
@@ -340,7 +340,7 @@ def menu_ch(name,id,category,rating,thumb):
         
         try: # some contains no CHURL
             li.setInfo( type="Video", infoLabels={"Title":CHName, "count": CHON, "Rating":CHBKVM, "CODE":CHBKID,"Year":year, "Episode":p_order})
-            u=sys.argv[0]+"?mode=ch&name="+CHName+"&id="+CHID+"&url="+urllib.quote_plus(CHURL.encode('gb18030'))
+            u=sys.argv[0]+"?mode=ch&name="+CHName+"&id="+CHID+"&url="+urllib.parse.quote_plus(CHURL.encode('gb18030'))
             xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,False)       
             i+=1 # increment only if everything is OK
         except: pass
@@ -398,9 +398,9 @@ def Search(mname):
     keyboard.doModal()
     keyword=keyboard.getText()
     
-    url="http://listso.ppstream.com/search.php?acp=936&w="+urllib.quote_plus(keyword)
+    url="http://listso.ppstream.com/search.php?acp=936&w="+urllib.parse.quote_plus(keyword)
     text = getHttpData(url)
-    text = unicode(text, 'gb18030','replace').encode('utf8')
+    text = str(text, 'gb18030','replace').encode('utf8')
     text = text.replace('gb18030', 'utf-8')
     text = text.replace('GB18030', 'utf-8')
  
@@ -449,7 +449,7 @@ def Search(mname):
         
         try: # some contains no CHURL
             li.setInfo( type="Video", infoLabels={"Title":CHName, "count": CHON, "Rating":CHBKVM, "CODE":CHBKID,"Year":year})
-            u=sys.argv[0]+"?mode=ch&name="+CHName+"&id="+CHID+"&url="+urllib.quote_plus(CHURL.encode('gb18030'))
+            u=sys.argv[0]+"?mode=ch&name="+CHName+"&id="+CHID+"&url="+urllib.parse.quote_plus(CHURL.encode('gb18030'))
             xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,False)       
             i+=1 # increment only if everything is OK
         except: pass
@@ -488,13 +488,13 @@ def Search(mname):
                li=xbmcgui.ListItem(p_list)
   
             li.setInfo( type="Video", infoLabels={"Title":name, "count":on, "Rating":vm})
-            u=sys.argv[0]+"?mode=sub&name="+name+"&id="+id+"&rating="+str(vm)+"&category="+urllib.quote_plus(catType)+"&thumb="+p_thumb
+            u=sys.argv[0]+"?mode=sub&name="+name+"&id="+id+"&rating="+str(vm)+"&category="+urllib.parse.quote_plus(catType)+"&thumb="+p_thumb
             xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)
             
     #添加一个“PPS搜索”
     li = xbmcgui.ListItem('[COLOR FFFF00FF]当前搜索: [/COLOR][COLOR FFFFFF00]('+keyword+') [/COLOR][COLOR FF00FFFF]共计：'+str(i+j)+'[/COLOR]【[COLOR FF00FF00]'+'点此输入新搜索内容'+'[/COLOR]】')
     li.setInfo(type="Video", infoLabels={"Title":keyword, "Rating":10.0}) # Top of list
-    u = sys.argv[0]+"?mode=search&name=" + urllib.quote_plus(keyword)
+    u = sys.argv[0]+"?mode=search&name=" + urllib.parse.quote_plus(keyword)
     xbmcplugin.addDirectoryItem(int(sys.argv[1]), u, li, True)
 
     xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_VIDEO_RATING)
@@ -524,16 +524,16 @@ def Searchx(mname):
             p_name = match[i].strip()
             p_list = str(i+1) + '. ' + p_name
             li=xbmcgui.ListItem(p_list)
-            u=sys.argv[0]+"?mode=search&name="+urllib.quote_plus(p_name)+"&id="
+            u=sys.argv[0]+"?mode=search&name="+urllib.parse.quote_plus(p_name)+"&id="
             xbmcplugin.addDirectoryItem(int(sys.argv[1]),u,li,True)        
     else:
-        url="http://listso.ppstream.com/search.php?acp=936&w="+urllib.quote_plus(mname)
+        url="http://listso.ppstream.com/search.php?acp=936&w="+urllib.parse.quote_plus(mname)
         
 ##################################################################################
 # Routine to play video
 ##################################################################################
 def KankanPlay(url):
-    print 'video-link:', url
+    print('video-link:', url)
     xbmc.executebuiltin('System.ExecWait(\\"' + __cwd__ + '\\resources\\player\\pps4xbmc\\" ' + url.decode("gbk").encode("utf8") + ')')
 
 ##################################################################################
@@ -582,31 +582,31 @@ text=''
 rating=''
 
 try:
-    url=urllib.unquote_plus(params["url"])
+    url=urllib.parse.unquote_plus(params["url"])
 except:
     pass
 try:
-    name=urllib.unquote_plus(params["name"])
+    name=urllib.parse.unquote_plus(params["name"])
 except:
     pass
 try:
-    id=urllib.unquote_plus(params["id"])
+    id=urllib.parse.unquote_plus(params["id"])
 except:
     pass
 try:
-    category=urllib.unquote_plus(params["category"])
+    category=urllib.parse.unquote_plus(params["category"])
 except:
     pass
 try:
-    thumb=urllib.unquote_plus(params["thumb"])
+    thumb=urllib.parse.unquote_plus(params["thumb"])
 except:
     pass
 try:
-    rating=urllib.unquote_plus(params["rating"])
+    rating=urllib.parse.unquote_plus(params["rating"])
 except:
     pass
 try:
-    mode=urllib.unquote_plus(params["mode"])
+    mode=urllib.parse.unquote_plus(params["mode"])
 except:
     pass
 

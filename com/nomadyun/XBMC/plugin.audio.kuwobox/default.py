@@ -3,8 +3,8 @@
 #v1.0.0 2009/11/08 by robinttt, initial release
 #v1.1.0 2011/12/04 by d744000, full web scraping, added search.
 
-import urllib, urllib2, os, re, sys
-import gzip, StringIO #playvideo
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, os, re, sys
+import gzip, io #playvideo
 import hashlib, time
 from bs4 import BeautifulSoup
 
@@ -31,13 +31,13 @@ def getUrlTree(url, data=None):
         }
         if data and not isinstance(data, str):
             # 2-item tuple or param dict, assume utf-8
-            data = urllib.urlencode(data)
-        req = urllib2.Request(url, data, headers)
-        response = urllib2.urlopen(req)
+            data = urllib.parse.urlencode(data)
+        req = urllib.request.Request(url, data, headers)
+        response = urllib.request.urlopen(req)
         httpdata = response.read()
         response.close()
         if response.headers.get('content-encoding', None) == 'gzip':
-            httpdata = gzip.GzipFile(fileobj=StringIO.StringIO(httpdata)).read()
+            httpdata = gzip.GzipFile(fileobj=io.StringIO(httpdata)).read()
         # BeautifulSoup handles encoding, thus skip transcoding here.
         return httpdata
 
@@ -177,7 +177,7 @@ def PlayMusic():
                 listitem.setInfo( type="Music", infoLabels={ "Title": true_title, "Artist": artist} )
                 playlist.add(url, listitem)
             else:
-                print('PlayMusic: %s - %s, %s' % (title, artist, url))
+                print(('PlayMusic: %s - %s, %s' % (title, artist, url)))
     if xbmc:
         xbmc.Player().play(playlist)
 
@@ -238,7 +238,7 @@ def extractImg(item):
 def extractImgSearch(item, name=''):
     iconimage = extractImg(item.find('img'))
     if (not iconimage) and name:
-        attrs={'title':unicode(name,'utf-8')}
+        attrs={'title':str(name,'utf-8')}
         iconimage = extractImg(item.findChild('img', attrs))
         if not iconimage:
             iconimage = extractImg(item.findPreviousSibling('img', attrs))
@@ -298,7 +298,7 @@ def addBoardMusic(item):
 
 def addBoardMusicList(item):
     if 'billboard_phases' in params:
-        print(params['billboard_phases'])
+        print((params['billboard_phases']))
         phase_item = BeautifulSoup(params['billboard_phases'], "html.parser")
         addBillboardPhase(phase_item)
     mids = item.find_all(attrs={'type':'checkbox'})
@@ -530,9 +530,9 @@ searchList = [searchArtist, searchMusic, searchAlbum, searchNavPage]
 def addLink(title,artist,url,mode,iconimage='',total=0,video=False):
     if not xbmc:
         try:
-            print('addLink(%s, %s, %s, %s, %s)' % (title,artist,url,mode,iconimage))
+            print(('addLink(%s, %s, %s, %s, %s)' % (title,artist,url,mode,iconimage)))
         except:
-            print('addLink(title?, artist?, %s, %s, %s)' % (url,mode,iconimage))
+            print(('addLink(title?, artist?, %s, %s, %s)' % (url,mode,iconimage)))
     u = make_param({"url": url, "mode": mode})
     displayname = artist + ' - ' + title if artist else title
     displayname = INDENT_STR + displayname
@@ -552,9 +552,9 @@ def addDir(name, url, mode, iconimage='DefaultFolder.png', context={}, plot='', 
         url = URL_BASE + url
     if not xbmc:
         try:
-            print('addDir(%d: %s, %s, %s, %s, %s)' % (len(urlparams), name,str(url)[:MAX_TEST],mode,iconimage,str(context)[:MAX_TEST]))
+            print(('addDir(%d: %s, %s, %s, %s, %s)' % (len(urlparams), name,str(url)[:MAX_TEST],mode,iconimage,str(context)[:MAX_TEST])))
         except:
-            print('addDir(%d: %s, ?url, ?mode, %s)' % (len(urlparams), name,iconimage))
+            print(('addDir(%d: %s, ?url, ?mode, %s)' % (len(urlparams), name,iconimage)))
     param = {"url": url, "mode": mode}
     param.update(context)
     u = make_param(param)
@@ -563,7 +563,7 @@ def addDir(name, url, mode, iconimage='DefaultFolder.png', context={}, plot='', 
         return xbmcplugin.addDirectoryItem(pluginhandle,url=u,listitem=item,isFolder=folder,totalItems=total)
     else:
         if len(u) > MAX_TEST:
-            print('addDir u len %d, saved in urlparams %d' % (len(u), len(urlparams)))
+            print(('addDir u len %d, saved in urlparams %d' % (len(u), len(urlparams))))
         else:
             print(u)
         urlparams.append(u)
@@ -586,7 +586,7 @@ def get_params(params):
 
 def make_param(query, url = None):
     if url == None: url = sys.argv[0] if xbmc else ""
-    param = "%s?%s" % (url, urllib.urlencode(query))
+    param = "%s?%s" % (url, urllib.parse.urlencode(query))
     return param
 
 if xbmc:
@@ -622,14 +622,14 @@ def test():
         main()
 
     def testMenu(urlparams, items = [], url = None):
-        print('testMenu(url="%s", items=%s)\n' % (url, items))
+        print(('testMenu(url="%s", items=%s)\n' % (url, items)))
         if url and isinstance(url, str):
             UTP(url)
         if items and not isinstance(items, list):
             items = [items]
         for x in items:
             url = urlparams[x]
-            print('\n\n\n ******* TESTING %s\n' % url[:MAX_TEST])
+            print(('\n\n\n ******* TESTING %s\n' % url[:MAX_TEST]))
             UTP(url)
 
     test_url = [

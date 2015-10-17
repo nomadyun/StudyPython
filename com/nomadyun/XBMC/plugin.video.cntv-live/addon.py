@@ -8,9 +8,9 @@ import xbmcplugin
 
 import re
 import traceback
-import urllib
-import urllib2
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+import urllib.parse
 try:
 	import simplejson as jsonimpl
 except ImportError:
@@ -37,8 +37,8 @@ def getQualityRange(quality):
 def main():
 	if param.startswith("?stream="):
 		def tryHLSStream(jsondata, streamName):
-			print("Trying stream {0}".format(streamName))
-			if jsondata["hls_url"].has_key(streamName):
+			print(("Trying stream {0}".format(streamName)))
+			if streamName in jsondata["hls_url"]:
 				url = jsondata["hls_url"][streamName]
 				url = url.replace("b=100-300", "b=" + getQualityRange(addon.getSetting("quality"))) #Set the desired bandwidth
 				
@@ -46,7 +46,7 @@ def main():
 				#url = url.replace("tv.fw.live.cntv.cn", "tvhd.fw.live.cntv.cn") #China - 403 Forbidden, old
 				url = url.replace("vtime.cntv.cloudcdn.net:8000", "vtime.cntv.cloudcdn.net")
 				
-				print("Trying URL {0}".format(url))
+				print(("Trying URL {0}".format(url)))
 				
 				if "dianpian" in url:
 					return None
@@ -54,7 +54,7 @@ def main():
 				else:
 					try:
 						#Download and check if it's the actual HLS stream or a link to the actual stream
-						resp = urllib2.urlopen(url)
+						resp = urllib.request.urlopen(url)
 						lines = resp.read().decode("utf-8").split("\n")
 						isStreamLink = False
 						for line in lines:
@@ -72,13 +72,13 @@ def main():
 						
 						return url
 					except Exception:
-						print(traceback.format_exc())
+						print((traceback.format_exc()))
 						return None
 			else:
 				return None
 		
 		def tryHDSStream(jsondata, streamName):
-			if jsondata["hds_url"].has_key(streamName):
+			if streamName in jsondata["hds_url"]:
 				url = jsondata["hds_url"][streamName]
 				url = url + "&hdcore=2.11.3"
 				
@@ -86,12 +86,12 @@ def main():
 		
 		try:
 			#Locate the M3U8 file
-			resp = urllib2.urlopen("http://vdn.live.cntv.cn/api2/live.do?channel=pa://cctv_p2p_hd" + param[8:])
+			resp = urllib.request.urlopen("http://vdn.live.cntv.cn/api2/live.do?channel=pa://cctv_p2p_hd" + param[8:])
 			data = resp.read().decode("utf-8")
 			
 			url = None
 			jsondata = jsonimpl.loads(data)
-			if jsondata.has_key("hls_url"):
+			if "hls_url" in jsondata:
 				#Try a bunch of URLs
 				url = url or tryHLSStream(jsondata, "hls3") #Preferred
 				url = url or tryHLSStream(jsondata, "hls4")
@@ -106,20 +106,20 @@ def main():
 				showNotification(30002)
 				return
 			
-			print("Loading URL {0}".format(url))
+			print(("Loading URL {0}".format(url)))
 			
-			auth = urlparse.parse_qs(urlparse.urlparse(url)[4])["AUTH"][0]
-			print("Got AUTH {0}".format(auth))
+			auth = urllib.parse.parse_qs(urllib.parse.urlparse(url)[4])["AUTH"][0]
+			print(("Got AUTH {0}".format(auth)))
 			
-			url = url + "|" + urllib.urlencode( { "Cookie" : "AUTH=" + auth } )
+			url = url + "|" + urllib.parse.urlencode( { "Cookie" : "AUTH=" + auth } )
 			
-			print("Built URL {0}".format(url))
+			print(("Built URL {0}".format(url)))
 			
 			xbmc.Player().play(url)
 			
 		except Exception:
 			showNotification(30000)
-			print(traceback.format_exc())
+			print((traceback.format_exc()))
 			return
 
 	elif param.startswith("?city="):

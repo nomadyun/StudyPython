@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import urllib,urllib2,re,os,sys
+import urllib.request, urllib.parse, urllib.error,urllib.request,urllib.error,urllib.parse,re,os,sys
 import xbmcplugin,xbmcgui,xbmc
 
 #BaiduRadio - by Robinttt 2009.
@@ -9,9 +9,9 @@ URL = 'http://list.mp3.baidu.com/radio/iframe.html'
 BANNER_FMT = '[COLOR FFDEB887]【%s】[/COLOR]'
 
 def request(url):
-	req = urllib2.Request(url)
+	req = urllib.request.Request(url)
 	req.add_header('User-Agent', UserAgent)
-	response = urllib2.urlopen(req)
+	response = urllib.request.urlopen(req)
 	link = response.read()
 	response.close()
 	try:
@@ -24,13 +24,13 @@ def request(url):
 def addLink(name, url, iconimage = '', title = None, isFolder = False):
 	li=xbmcgui.ListItem(name,iconImage=iconimage, thumbnailImage=iconimage)
 	if not title: title = name
-	print('url:',url)
+	print(('url:',url))
 	li.setInfo(type= 'Video' if 'm3u' in url else 'Music',infoLabels={"Title":title})
 	xbmcplugin.addDirectoryItem(int(sys.argv[1]),url,li, isFolder)
 
 def addDir(name, url = '', mode = 0, iconimage = ''):
 	query = {'name': name, 'url': url, 'mode': mode}
-	u = "%s?%s" % (sys.argv[0], urllib.urlencode(query))
+	u = "%s?%s" % (sys.argv[0], urllib.parse.urlencode(query))
 	addLink(name, u, iconimage, isFolder = True)
 
 def Roots(url):

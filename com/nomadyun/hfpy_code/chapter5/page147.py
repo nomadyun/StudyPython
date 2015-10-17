@@ -14,7 +14,7 @@ with open('sarah.txt') as saf:
     data = saf.readline()
 sarah = data.strip().split(',')
 
-print(sorted(james))
-print(sorted(julie))
-print(sorted(mikey))
-print(sorted(sarah))
+print((sorted(james)))
+print((sorted(julie)))
+print((sorted(mikey)))
+print((sorted(sarah)))

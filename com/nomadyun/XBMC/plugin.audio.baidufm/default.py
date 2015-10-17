@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import xbmc, xbmcgui, xbmcaddon,  xbmcplugin
-import sys, urllib, urlparse, string
+import sys, urllib.request, urllib.parse, urllib.error, urllib.parse, string
 
 try:
 	import simplejson
@@ -11,7 +11,7 @@ __addon__ = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo("name")
 
 def log(txt):
-	message = "%s: %s" % (__addonname__, unicode(txt).encode('utf-8'))
+	message = "%s: %s" % (__addonname__, str(txt).encode('utf-8'))
 	print(message)
 	#xbmc.log(msg = message, level = xbmc.LOGDEBUG)
 
@@ -27,21 +27,21 @@ class BaiduFmPlayer(xbmc.Player):
 	
 	def genPluginUrl(self, params):
 		utf8Params = {}
-		for key, value in params.iteritems():
-			utf8Params[key] = unicode(value).encode('utf-8')
-		return self.pluginName + "?" + urllib.urlencode(utf8Params)
+		for key, value in params.items():
+			utf8Params[key] = str(value).encode('utf-8')
+		return self.pluginName + "?" + urllib.parse.urlencode(utf8Params)
 	
 	def getParam(self, key):
-		if self.params.has_key(key):
+		if key in self.params:
 			return self.params[key]
 		else:
 			return None
 		
 	def parseArgv(self, argv):
-		print argv
+		print(argv)
 		self.pluginName = argv[0]
 		self.windowId = int(argv[1])
-		self.params = dict(urlparse.parse_qsl(argv[2][1:]))
+		self.params = dict(urllib.parse.parse_qsl(argv[2][1:]))
 
 		action = self.getParam("action")
 
@@ -56,7 +56,7 @@ class BaiduFmPlayer(xbmc.Player):
 			self.playing = True
 	
 	def loadChannelList(self):
-		html = urllib.urlopen("http://fm.baidu.com").read()
+		html = urllib.request.urlopen("http://fm.baidu.com").read()
 		start = html.find("{", html.find("rawChannelList"))
 		end = html.find(";", start)
 		json = html[start:end].strip()
@@ -98,7 +98,7 @@ class BaiduFmPlayer(xbmc.Player):
 		return self.songInfos.pop(0)
 
 	def loadSongList(self, channelId):
-		html = urllib.urlopen("http://fm.baidu.com/dev/api/?tn=playlist&format=json&id="+urllib.quote(channelId)).read()
+		html = urllib.request.urlopen("http://fm.baidu.com/dev/api/?tn=playlist&format=json&id="+urllib.parse.quote(channelId)).read()
 		json = simplejson.loads(html)
 		ids = []
 		for song in json["list"]:
@@ -107,7 +107,7 @@ class BaiduFmPlayer(xbmc.Player):
 
 	def loadSongLinks(self, ids):
 		ids = string.join([str(i) for i in ids], ',')
-		html = urllib.urlopen("http://music.baidu.com/data/music/fmlink?type=mp3&rate=320&songIds="+urllib.quote(ids)).read()
+		html = urllib.request.urlopen("http://music.baidu.com/data/music/fmlink?type=mp3&rate=320&songIds="+urllib.parse.quote(ids)).read()
 		data = simplejson.loads(html)
 		xcode = data["data"]["xcode"]
 		songs = data["data"]["songList"]

@@ -25,7 +25,7 @@ with open('sarah.txt') as saf:
     data = saf.readline()
 sarah = data.strip().split(',')
 
-print(sorted(set([sanitize(t) for t in james]))[0:3])
-print(sorted(set([sanitize(t) for t in julie]))[0:3])
-print(sorted(set([sanitize(t) for t in mikey]))[0:3])
-print(sorted(set([sanitize(t) for t in sarah]))[0:3])
+print((sorted(set([sanitize(t) for t in james]))[0:3]))
+print((sorted(set([sanitize(t) for t in julie]))[0:3]))
+print((sorted(set([sanitize(t) for t in mikey]))[0:3]))
+print((sorted(set([sanitize(t) for t in sarah]))[0:3]))

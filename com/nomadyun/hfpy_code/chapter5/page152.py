@@ -42,7 +42,7 @@ for each_t in mikey:
 for each_t in sarah:
     clean_sarah.append(sanitize(each_t))
 
-print(sorted(clean_james))
-print(sorted(clean_julie))
-print(sorted(clean_mikey))
-print(sorted(clean_sarah))
+print((sorted(clean_james)))
+print((sorted(clean_julie)))
+print((sorted(clean_mikey)))
+print((sorted(clean_sarah)))

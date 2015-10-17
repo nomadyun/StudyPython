@@ -34,15 +34,15 @@ def waitPlaytime(test_browser, wait_time):
     try:
         playtime = test_browser.find_element_by_id('playTimeShow')
         play_time = playtime.get_attribute("value")
-        print play_time
+        print(play_time)
         time.sleep(2)
         element = WebDriverWait(test_browser, wait_time).until_not(
             EC.text_to_be_present_in_element_value((By.ID, "playTimeShow"), play_time)
         )
         if element:
-            print "Test passed"
+            print("Test passed")
     except:
-        print "Test may be failed, please check if you are still online or not"
+        print("Test may be failed, please check if you are still online or not")
 
 def get_parameters(*lst):
     return lst
@@ -80,7 +80,7 @@ def launchPage(browser_type, samplePage):
             browser.maximize_window()
             browserID = 1
         except:
-            print "Test Failed"
+            print("Test Failed")
             sys.exit("ERROR: Cannot open the test page, please check the browser setting.")
 
     # Launch FireFox and load the test page
@@ -91,7 +91,7 @@ def launchPage(browser_type, samplePage):
             browser.maximize_window()
             browserID = 2
         except:
-            print "Test Failed"
+            print("Test Failed")
             sys.exit("ERROR: Cannot open the test page, please check the browser setting.")
 
     # Launch Chrome and load the test page
@@ -105,7 +105,7 @@ def launchPage(browser_type, samplePage):
             browser = webdriver.Chrome(chrome_options=ch_options)
             browserID = 3
         except:
-            print "Test Failed"
+            print("Test Failed")
             sys.exit("ERROR: Cannot open the test page, please check the browser setting.")
     # Launch Safari and load the test page
     else:
@@ -151,7 +151,7 @@ def playclip(browser, playmode, testedClip, browser_id):
         # browser.refresh()
         seekBar = browser.find_element_by_id('seekbar')
         getseekWidth = seekBar.get_attribute('style')
-        print getseekWidth
+        print(getseekWidth)
 
         if '0px' in getseekWidth or '100%' in getseekWidth:
             count += 1
@@ -172,7 +172,7 @@ def playclip(browser, playmode, testedClip, browser_id):
                 pass
 
             cpu_data = float('%0.3f' % cpu_data)
-            print cpu_data
+            print(cpu_data)
             cpuPercentList.append(cpu_data)
 
     avgCpuPercent = getAverageCPUdata(cpuPercentList)
@@ -198,7 +198,7 @@ def executeUITest(samplePage, browser_type, testedClip, playmode):
 
     cpu_browser_info.append(CPUPercent)
     waitTime = int(testedClip[4])
-    print waitTime
+    print(waitTime)
     time.sleep(waitTime)
     return cpu_browser_info
 

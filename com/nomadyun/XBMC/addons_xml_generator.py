@@ -72,14 +72,14 @@ class Generator:
                     if ( line.find( "<?xml" ) >= 0 ): continue
                     # add line
                     if sys.version < '3':
-                        addon_xml += unicode( line.rstrip() + "\n", "UTF-8" )
+                        addon_xml += str( line.rstrip() + "\n", "UTF-8" )
                     else:
                         addon_xml += line.rstrip() + "\n"
                 # we succeeded so add to our final addons.xml text
                 addons_xml += addon_xml.rstrip() + "\n\n"
             except Exception as e:
                 # missing or poorly formatted addon.xml
-                print("Excluding %s for %s" % ( _path, e ))
+                print(("Excluding %s for %s" % ( _path, e )))
         # clean and add closing tag
         addons_xml = addons_xml.strip() + u("\n</addons>\n")
         # save file
@@ -99,7 +99,7 @@ class Generator:
             self._save_file( m.encode( "UTF-8" ), file="addons.xml.md5" )
         except Exception as e:
             # oops
-            print("An error occurred creating addons.xml.md5 file!\n%s" % e)
+            print(("An error occurred creating addons.xml.md5 file!\n%s" % e))
  
     def _save_file( self, data, file ):
         try:
@@ -107,7 +107,7 @@ class Generator:
             open( file, "wb" ).write( data )
         except Exception as e:
             # oops
-            print("An error occurred saving %s file!\n%s" % ( file, e ))
+            print(("An error occurred saving %s file!\n%s" % ( file, e )))
  
  
 if ( __name__ == "__main__" ):

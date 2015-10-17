@@ -11,37 +11,37 @@ class SchoolMember:
     def __init__(self,name,age):
         self.name = name
         self.age = age
-        print '(Initialized SchoolMember:%s)' %self.name
+        print('(Initialized SchoolMember:%s)' %self.name)
         
     def tell(self):
         '''Tell my details.'''
-        print 'Name:"%s" Age:"%s"' %(self.name,self.age),
+        print('Name:"%s" Age:"%s"' %(self.name,self.age), end=' ')
 class Teacher(SchoolMember):
     '''Reprents a teacher.'''
     def __init__(self,name,age,salary):
         SchoolMember.__init__(self, name, age)
         self.salary = salary
-        print '(Initialized Teacher:%s)' %self.name
+        print('(Initialized Teacher:%s)' %self.name)
         
     def tell(self):
         SchoolMember.tell(self)
-        print 'Salary:"%d"' %self.salary
+        print('Salary:"%d"' %self.salary)
         
 class Student(SchoolMember):
     '''Reprents a student.'''
     def __init__(self,name,age,marks):
         SchoolMember.__init__(self, name, age)
         self.marks = marks
-        print '(Initialized Student:%s)' %self.name
+        print('(Initialized Student:%s)' %self.name)
         
     def tell(self):
         SchoolMember.tell(self)
-        print 'Marks:"%d"' %self.marks
+        print('Marks:"%d"' %self.marks)
         
 if __name__ == '__main__':
     t = Teacher('Mrs.Shrividya',40,30000)
     s = Student('Swaroop',22,75)
-    print #prints a blank Line
+    print() #prints a blank Line
     
     members = [t,s]
     for member in members:

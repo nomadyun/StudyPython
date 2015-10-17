@@ -175,7 +175,7 @@ if __name__ == "__main__":
         for test_clip in test_clips:
             fps_result = FPS_UITest.executeUITest(sampler_page, browser_test, test_clip, play_mode)
             FPS_CSV_Report.get_report(logfile, fps_result)
-        print "PASS: FPS Report generated for", browser_test
+        print("PASS: FPS Report generated for", browser_test)
 
     # KPI testing and reporting
     browser_list = testset_kpi[2]
@@ -184,4 +184,4 @@ if __name__ == "__main__":
         kpi_result = KPI_UITest.executeUITest(sampler_page, browser_test, test_clips, logfile)
         KPI_CSV_Report.get_report(logfile, kpi_result)
 
-        print "PASS: KPI Report generated for", browser_test
+        print("PASS: KPI Report generated for", browser_test)

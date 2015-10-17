@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 
 
-import KPI_CSV_Report as report
+from . import KPI_CSV_Report as report
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,7 +10,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import sys
-from _winreg import *
+from winreg import *
 
 # wait for 20 second
 SHORT_TIME = 20
@@ -22,16 +22,16 @@ def waitPlaytime(wait_time):
     try:
         playtime = browser.find_element_by_id("playTimeShow")
         play_time = playtime.get_attribute("value")
-        print play_time
+        print(play_time)
         time.sleep(1)
         element = WebDriverWait(browser, wait_time).until_not(
             EC.text_to_be_present_in_element_value((By.ID, "playTimeShow"), play_time)
         )
         if element:
-            print "Test passed"
+            print("Test passed")
     except Exception as e:
-        print e
-        print "Test may be failed, please check if you are still online or not"
+        print(e)
+        print("Test may be failed, please check if you are still online or not")
 
 def waitSDK_version(wait_time):
     try:
@@ -45,7 +45,7 @@ def waitSDK_version(wait_time):
         build_num = browser.find_element_by_id("brandversion").text
         return build_num.split(" ")[-1]
     except Exception as e:
-        print e
+        print(e)
         browser.close()
         sys.exit("ERROR: Cannot initiate the player, please check if it is properly installed.")
 
@@ -59,7 +59,7 @@ def switchServer(new_srv="public-ott-nodrm.verimatrix.com:80"):
         old_srv = QueryValueEx(key, 'server')[0]
         if old_srv != new_srv:
             SetValueEx(key, 'server', 0, REG_SZ, new_srv)
-            print "The new DRM server is:", QueryValueEx(key, 'server')[0]
+            print("The new DRM server is:", QueryValueEx(key, 'server')[0])
             # Test page need a refresh
             return True
         else:
@@ -67,7 +67,7 @@ def switchServer(new_srv="public-ott-nodrm.verimatrix.com:80"):
             return False
 
     except Exception as e:
-        print "Error in updating the DRM server:", e
+        print("Error in updating the DRM server:", e)
 
     finally:
         key.Close()
@@ -83,7 +83,7 @@ def launchPage(browser_type, samplePage):
             browser.maximize_window()
             browserID = 1
         except:
-            print "Test Failed"
+            print("Test Failed")
             sys.exit("ERROR: Cannot open the test page, please check the browser setting.")
 
     # Launch FireFox and load the test page
@@ -94,7 +94,7 @@ def launchPage(browser_type, samplePage):
             browser.maximize_window()
             browserID = 2
         except:
-            print "Test Failed"
+            print("Test Failed")
             sys.exit("ERROR: Cannot open the test page, please check the browser setting.")
 
     # Launch Chrome and load the test page
@@ -109,7 +109,7 @@ def launchPage(browser_type, samplePage):
             browserID = 3
             time.sleep(2)
         except:
-            print "Test Failed"
+            print("Test Failed")
             sys.exit("ERROR: Cannot open the test page, please check the browser setting.")
     # Launch Safari and load the test page
     else:
@@ -142,7 +142,7 @@ def getPlayer():
     try:
         mplayer = browser.find_element_by_css_selector("#p-plugin")
     except Exception as e:
-        print "Fatal Error: Cannot get the player", e
+        print("Fatal Error: Cannot get the player", e)
     return mplayer
 
 def setOffset(offset):
@@ -150,7 +150,7 @@ def setOffset(offset):
     player = getPlayer()
     player._parent.execute_script("document.getElementById('offset').value=\'" + offset + "\'")
     player._parent.execute_script("setOffsetValue('offset')")
-    print "offset is set to: %s" % offset
+    print("offset is set to: %s" % offset)
 
 def resetOffset():
     browser.find_element_by_id("offset").clear()
@@ -162,7 +162,7 @@ def playClip(testclip, logfile, browser_type, samplePage):
     """
     play test clip
     """
-    print "scenario:", testclip[2]
+    print("scenario:", testclip[2])
 
     # restart the browser if the test scenario requests
     if testclip[3] == "yes":
@@ -171,7 +171,7 @@ def playClip(testclip, logfile, browser_type, samplePage):
 
         # get log
         report.sortFile(logfile, "KPI_log")
-        print "Target log file updated"
+        print("Target log file updated")
 
         launchPage(browser_type, samplePage)
 
@@ -208,7 +208,7 @@ def testSeek(testclip, logfile, browser_type, samplePage):
     # Seek - First Time
     player._parent.execute_script("voplayer.setPosition(\'" + SEEK_POSITION_Forward + "\')")
     position = player._parent.execute_script("return voplayer.getPosition()")
-    print "The current position is:", position
+    print("The current position is:", position)
 
     # Wait for the play time changes
     waitPlaytime(LONG_TIME)
@@ -217,7 +217,7 @@ def testSeek(testclip, logfile, browser_type, samplePage):
     # Seek - Second Time
     player._parent.execute_script("voplayer.setPosition(\'" + SEEK_POSITION_backword + "\')")
     position = player._parent.execute_script("return voplayer.getPosition()")
-    print "The current position is:", position
+    print("The current position is:", position)
 
     waitPlaytime(LONG_TIME)
     time.sleep(5)
@@ -227,21 +227,21 @@ def testAudio(testclip, logfile, browser_type, samplePage):
     player = playClip(testclip, logfile, browser_type, samplePage)
 
     audioCount = player._parent.execute_script("return voplayer.getAudioCount()")
-    print "Audio Stream Amount is %d" % audioCount
+    print("Audio Stream Amount is %d" % audioCount)
 
     # select audio stream (the last one)
     if audioCount > 1:
         audioCount -= 1
         player._parent.execute_script("voplayer.selectAudio(\'" + str(audioCount) + "\')")
     else:
-        print "Invalid Test Clip: Only one audio stream in this clip!"
+        print("Invalid Test Clip: Only one audio stream in this clip!")
 
     # commit selection
     player._parent.execute_script("commitSelection()")
 
     waitPlaytime(LONG_TIME)
     time.sleep(5)
-    print "audio stream was changed"
+    print("audio stream was changed")
 
 def testSubtitle(testclip, logfile, browser_type, samplePage):
 
@@ -249,21 +249,21 @@ def testSubtitle(testclip, logfile, browser_type, samplePage):
 
     # count the subtitle
     subtitleCount = player._parent.execute_script("return voplayer.getSubtitleCount()")
-    print "Subtitle Stream Amount is %d" % subtitleCount
+    print("Subtitle Stream Amount is %d" % subtitleCount)
 
     # select subtitle stream (the last one)
     if subtitleCount > 1:
         subtitleCount -= 1
         player._parent.execute_script("voplayer.selectSubtitle(\'" + str(subtitleCount) + "\')")
     else:
-        print "Invalid Test Clip: Only one subtitle stream in this clip!"
+        print("Invalid Test Clip: Only one subtitle stream in this clip!")
 
     # commit selection
     player._parent.execute_script("commitSelection()")
 
     waitPlaytime(LONG_TIME)
     time.sleep(5)
-    print "subtitle stream was changed"
+    print("subtitle stream was changed")
 
 def testAdaptiveStream(testclip, logfile, browser_type, samplePage):
     # include 3 test scenario in this function: 1) Adaptive stream show, 2) Pause, 3) Resume
@@ -334,7 +334,7 @@ def executeUITest(samplePage, browser_type, testClips, logfile):
     test_clip = testClips[9]
     testAdaptiveStream(test_clip, logfile, browser_type, samplePage)
 
-    print "Success: Test passed"
+    print("Success: Test passed")
 
     browser.close()
 

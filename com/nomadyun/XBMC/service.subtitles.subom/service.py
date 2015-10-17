@@ -4,7 +4,7 @@ import re
 import os
 import sys
 import xbmc
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import shutil
 import xbmcvfs
 import xbmcaddon
@@ -28,7 +28,7 @@ sys.path.append (__resource__)
 SUBOM_API = 'http://www.subom.net/search/%s/'
 
 def log(module, msg):
-    xbmc.log((u"%s::%s - %s" % (__scriptname__,module,msg,)).encode('utf-8'),level=xbmc.LOGDEBUG )
+    xbmc.log(("%s::%s - %s" % (__scriptname__,module,msg,)).encode('utf-8'),level=xbmc.LOGDEBUG )
 
 def normalizeString(str):
     return str
@@ -42,7 +42,7 @@ def Search( item ):
     else:
         url = SUBOM_API % (item['title'])
     try:
-        socket = urllib.urlopen( url )
+        socket = urllib.request.urlopen( url )
         data = socket.read()
         socket.close()
         soup = BeautifulSoup(data)
@@ -89,13 +89,13 @@ def Download(url,lang):
     subtitle_list = []
     exts = [".srt", ".sub", ".txt", ".smi", ".ssa", ".ass" ]
     try:
-        socket = urllib.urlopen( url )
+        socket = urllib.request.urlopen( url )
         data = socket.read()
         soup = BeautifulSoup(data)
         results = soup.find("a", class_="down_ink download_link").get("onclick").encode('utf-8')
         id = results.split("'")
         url = "http://www.subom.net/index.php?m=down&a=sub&id=%s&s_id=%s" % (id[1], id[3])
-        socket = urllib.urlopen( url )
+        socket = urllib.request.urlopen( url )
         data = socket.read()
         socket.close()
     except:
@@ -162,14 +162,14 @@ if params['action'] == 'search' or params['action'] == 'manualsearch':
     item['episode']            = str(xbmc.getInfoLabel("VideoPlayer.Episode"))                   # Episode
     item['tvshow']             = normalizeString(xbmc.getInfoLabel("VideoPlayer.TVshowtitle"))   # Show
     item['title']              = normalizeString(xbmc.getInfoLabel("VideoPlayer.OriginalTitle")) # try to get original title
-    item['file_original_path'] = urllib.unquote(xbmc.Player().getPlayingFile().decode('utf-8'))  # Full path of a playing file
+    item['file_original_path'] = urllib.parse.unquote(xbmc.Player().getPlayingFile().decode('utf-8'))  # Full path of a playing file
     item['3let_language']      = []
 
     if 'searchstring' in params:
         item['mansearch'] = True
         item['mansearchstr'] = params['searchstring']
 
-    for lang in urllib.unquote(params['languages']).decode('utf-8').split(","):
+    for lang in urllib.parse.unquote(params['languages']).decode('utf-8').split(","):
         item['3let_language'].append(xbmc.convertLanguage(lang,xbmc.ISO_639_2))
 
     if item['title'] == "":
