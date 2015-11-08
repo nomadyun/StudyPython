@@ -38,8 +38,13 @@ def M3U8Paser(URI):
             print('We failed to reach a server.')           
             print(('Reason: ', e.reason))    
     else:    
+        #return bytes list
         content = response.readlines()
+        print(content)
         for line in content:
+            #convert to string
+            line = line.decode("utf-8")
+            print(line)
             m_m3u8 = p_m3u8.search(line)
             m_ts = p_ts.search(line)
                         
