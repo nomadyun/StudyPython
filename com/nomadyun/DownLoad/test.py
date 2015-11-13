@@ -6,7 +6,7 @@ Test
 '''
 
 import re, os, threading, time
-import urllib.request, urllib.parse, urllib.error
+import urllib.request,urllib.error
 
 #max_thread = 10
 # 初始化锁
@@ -15,13 +15,14 @@ import urllib.request, urllib.parse, urllib.error
 # import socket
 # socket.setdefaulttimeout(5.0)
 # URI="01-iframe.m3u8"
-p_m3u8 = re.compile('0\d.m3u8')
+p_m3u8 = re.compile('(.*\d).m3u8')
 # stream-01-31/247.ts
-p_ts = re.compile(r'(.*)/(.*.ts)')
+#p_ts = re.compile(r'(.*)/(.*.ts)')
+p_ts = re.compile(r'((.*)/)*(.*.ts)')
 
-down_path = 'F:/HLS_Download'
-baseUrl = 'http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/1240_vod.m3u8'
-urlRoot = 'http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/'
+down_path = 'F:/HLS_Download/Test'
+baseUrl = 'http://linear3.cdn.vf.rogers.com/v1/AUTH_OSECLIPSE2/ABC_Spark_HD_HLS/ABC_Spark_HD_HLS/ABC_Spark_HD_HLS.m3u8'
+urlRoot = 'http://linear3.cdn.vf.rogers.com/v1/AUTH_OSECLIPSE2/ABC_Spark_HD_HLS/ABC_Spark_HD_HLS/'
 
 m3u8_list = []
 ts_list = []
@@ -52,6 +53,8 @@ def M3U8Paser(URI):
                 m3u8_list.append(m_m3u8.group(0))
                 # print line
                 sub_m3u8 = m_m3u8.group(0)
+                #dirname of sublist
+                sub_m3u8_dir = m_m3u8.group(1)
                 sub_m3u8_url = urlRoot + sub_m3u8
                 print(sub_m3u8_url)
                 M3U8Paser(sub_m3u8_url)                    
@@ -64,7 +67,8 @@ def M3U8Paser(URI):
                 ts_name = m_ts.group(2)                
                 ts_url = urlRoot + ts
                 filelist.append(ts_url)
-                dir_name = os.path.join(down_path, sub_dir)
+                #dir_name = os.path.join(down_path, sub_dir)
+                dir_name = down_path
                 if not os.path.exists(dir_name):
                     os.makedirs(dir_name)
                 os.chdir(dir_name)
@@ -72,7 +76,7 @@ def M3U8Paser(URI):
                 print(('Downloading:' + ts))             
                 t = downloader(ts_url, ts_name)
                 time.sleep(1)
-                threads.append(t)
+                threads.append(t)                                                                                  
                 t.start()  
 class downloader(threading.Thread):
         def __init__(self, url, name):
