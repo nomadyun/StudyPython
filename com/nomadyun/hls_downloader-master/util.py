@@ -1,5 +1,5 @@
 import os
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 
 def chdir(path):
@@ -7,7 +7,7 @@ def chdir(path):
         os.makedirs(path)
     old_cwd = os.getcwd()
     os.chdir(path)
-    print('current working directory: {cwd}'.format(cwd=path))
+    print(('current working directory: {cwd}'.format(cwd=path)))
     return old_cwd
 
 
@@ -27,7 +27,7 @@ def parse_uri(uri):
     @param uri
     @return host_root, subpath, filename
     '''
-    print('parsing {uri}'.format(uri=uri))
+    print(('parsing {uri}'.format(uri=uri)))
     url = urlparse(uri)
     host_root = url.scheme + '://' + url.netloc
     subpath = os.path.dirname(url.path)[1:]
@@ -46,12 +46,12 @@ def check(path):
                 count_02 += 1
             if '-03-' in f:
                 count_03 += 1
-    print(count_01, count_02, count_03)
+    print((count_01, count_02, count_03))
     pass
 
 
 def main():
-    check('C:\Users\zou\Github\hls_downloader\channelgroup5\channelgroup5\cg543production\ch332')
+    check('C:\\Users\zou\Github\hls_downloader\channelgroup5\channelgroup5\cg543production\ch332')
 
 if __name__ == '__main__':
     main()
