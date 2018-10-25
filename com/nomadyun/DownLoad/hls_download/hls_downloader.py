@@ -6,11 +6,11 @@ from urllib.parse import urlparse
 from urllib.error import URLError
 import requests
 import m3u8
-content = ''
+
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36'
 }
-url = 'http://stream1.visualon.com:8082/hls/closedcaption/0909_cc9_m/1C_index.m3u8'
+url = 'http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8'
 
 
 def is_url(url):
@@ -38,21 +38,22 @@ def verify_url(url):
             return False
 
 
-def is_m3u8(content):
+def is_m3u8(url):
     data = verify_url(url)
+
     if not b'EXTM3U' in data:
         print(url + " is not a m3u8 file.")
     else:
-        return True
+        return data
 
 
 def hls_master_playlist(url):
-    if is_m3u8(content):
-        variant_m3u8 = m3u8.loads(content)
-        if variant_m3u8.is_variant:
-            print('True')
-        else:
-            print('False')
+    content =  bytes.decode(is_m3u8(url))
+    variant_m3u8 = m3u8.loads(content)
+    if variant_m3u8.is_variant:
+        print('True')
+    else:
+        print('False')
 
 
 def download_playlist(uri):
