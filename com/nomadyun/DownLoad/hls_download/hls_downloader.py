@@ -14,9 +14,12 @@ dl_baseDir = 'F:\Temp\download_test'
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36'
 }
+url = 'https://www.rmp-streaming.com/media/hls/fmp4/hevc/v270p_fmp4.m3u8'
 # url = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_adv_example_hevc/master.m3u8'
 # redirect url
-url = 'http://live-lh.daserste.de/i/daserste_de@91204/index_2692_av-b.m3u8?sd=10&rebase=on'
+# url = 'http://live-lh.daserste.de/i/daserste_de@91204/index_2692_av-b.m3u8?sd=10&rebase=on'
+# url = 'http://rr.webtv.telia.com:8090/114_hls_national_geographics_wild'
+# url = 'https://storage.googleapis.com/shaka-demo-assets/angel-one-widevine-hls/playlist_v-0576p-1400k-libx264.mp4.m3u8'
 
 def is_url(uri):
     result = validators.url(uri)
@@ -47,19 +50,19 @@ def available_url(uri):
 
 
 def is_m3u8_file(uri):
-    data = available_url(uri)[1]  # get return value content
-    if b'EXTM3U' in data:
-        # return data
+    m3u8_content = available_url(uri)[1]  # get return value content
+    if b'EXTM3U' in m3u8_content:
+        # return m3u8_content
         return True
     else:
-        print(uri + " is not a hls stream." + uri)
+        print(uri + " :is not a hls stream.")
         exit()
 
 
-def master_playlist(uri):
-    playlists_url=[]
-    iframe_playlists_url=[]
-    media_lists_url=[]
+def parse_master_playlist(uri):
+    playlists_url = []
+    iframe_playlists_url = []
+    media_lists_url = []
 
     # m3u8_content = bytes.decode(is_m3u8_file(uri))
     # variant_m3u8 = m3u8.loads(m3u8_content)
@@ -75,7 +78,6 @@ def master_playlist(uri):
              #   print(playlist_url)
                 playlists_url.append(playlist_url)
             print("playlists_url:")
-            # print(playlists_url)
         else:
             print('It\'s not a variant m3u8.' + uri)
             return uri
@@ -87,7 +89,6 @@ def master_playlist(uri):
              #   print(iframe_playlist_url)
                 iframe_playlists_url.append(iframe_playlist_url)
             print("iframe_playlists_url:")
-            # print(iframe_playlists_url)
         else:
             print("There is no iframe playlist in:" + uri)
 
@@ -98,30 +99,68 @@ def master_playlist(uri):
                     media_list_url = media_list.absolute_uri
                  #   print(media_list_url)
                     media_lists_url.append(media_list_url)
-            print("medea_lists_url:")
-         #   print(media_lists_url)
+            print("media_lists_url:")
         else:
             print("There is no media in m3u8:" + uri)
 
     return playlists_url, iframe_playlists_url, media_lists_url
 
 
-def get_segments_list(uri):
-    sub_m3u8 = master_playlist(uri)
-    if type(sub_m3u8).__name__ == 'tuple':
-   # print(master_playlist(uri))
-        for sub_m3u8_list in sub_m3u8:
-            for sub_m3u8 in sub_m3u8_list:
-                print(sub_m3u8)
-                if is_m3u8_file(sub_m3u8):
-                    playlist_url_obj = m3u8.load(sub_m3u8)
-                    segments = playlist_url_obj.files
-                    print(segments)
+def parse_stream_files(uri):
+    map_segment = []
+    segments_list = []
+    m3u8_obj = m3u8.load(uri)
+    file_base_uri = m3u8_obj.base_uri
+    print('file_base_uri:' + file_base_uri)
+
+    if m3u8_obj.is_endlist:
+        print("It\'s a vod stream.")
     else:
-       # print(master_playlist(uri))
-        playlist_url_obj = m3u8.load(sub_m3u8)
-        segments = playlist_url_obj.files
-        print(segments)
+        print("It\'s a live stream.")
+
+    for segment in m3u8_obj.segments:
+        segment_uri = segment.absolute_uri
+        segment_path = segment.base_path
+        segment_uri_list = [segment_uri, segment_path]
+        segments_list.append(segment_uri_list)
+    # Encryption stream, need add keyid into m3u8.model.py to support widevine
+    for key in m3u8_obj.keys:
+        if key is not None:
+            print(key.uri)
+            print(key.method)
+
+    if m3u8_obj.segment_map:
+        map_segment_uri = file_base_uri + m3u8_obj.segment_map['uri']  # get dict m3u8_obj.segment_map's value of  key 'uri'
+        print(map_segment_uri)
+        map_segment.append(map_segment_uri)
+        map_segment_path = os.path.dirname(m3u8_obj.segment_map['uri'])
+        print(map_segment_path)
+        map_segment.append(map_segment_path)
+
+        if 'byterange' in m3u8_obj.segment_map:
+            print("It's a byterange list.")
+            return map_segment
+        else:
+            print("It's not a byterange list.")
+            return map_segment, segments_list
+
+    else:
+        return segments_list
+
+def get_segments_list(uri):
+    all_m3u8_lists = parse_master_playlist(uri)
+    if type(all_m3u8_lists).__name__ == 'tuple':  # tuple (playlists_url, iframe_playlists_url, media_lists_url)
+        for sub_m3u8_lists in all_m3u8_lists:
+            for each_m3u8_url in sub_m3u8_lists:
+                print(each_m3u8_url)
+                if is_m3u8_file(each_m3u8_url):
+                    parse_stream_files(each_m3u8_url)
+                    print(parse_stream_files(each_m3u8_url))
+    else:
+        # if not variant m3u8
+        print(parse_stream_files(all_m3u8_lists))
+
+
 
 def check_dir(dl_path):
     # prepare download directory
@@ -146,4 +185,4 @@ def download_segment(uri):
 
 
 if __name__ == '__main__':
-    get_segments_list("https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_adv_example_hevc/tp8/iframe_index.m3u8")
+    get_segments_list("https://storage.googleapis.com/shaka-demo-assets/angel-one-widevine-hls/playlist_v-0576p-1400k-libx264.mp4.m3u8")
