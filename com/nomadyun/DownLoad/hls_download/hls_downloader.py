@@ -7,6 +7,7 @@ from urllib.error import URLError
 import requests
 import m3u8
 import os
+import re
 import threading
 
 dl_baseDir = 'F:\Temp\download_test'
@@ -106,29 +107,44 @@ def parse_master_playlist(uri):
     return playlists_url, iframe_playlists_url, media_lists_url
 
 
-def parse_stream_files(uri):
-    map_segment = []
+def segments(m3u8_obj):
     segments_list = []
-    m3u8_obj = m3u8.load(uri)
-    file_base_uri = m3u8_obj.base_uri
-    print('file_base_uri:' + file_base_uri)
-
-    if m3u8_obj.is_endlist:
-        print("It\'s a vod stream.")
-    else:
-        print("It\'s a live stream.")
-
+    # get segments absolute url and sub path
     for segment in m3u8_obj.segments:
         segment_uri = segment.absolute_uri
         segment_path = segment.base_path
         segment_uri_list = [segment_uri, segment_path]
         segments_list.append(segment_uri_list)
+    return segments_list
+
+def key(m3u8_obj):
+    vmx_key_patten = re.compile(r'http(s?)://.*/CAB/keyfile\?r=.*')  # if a verimatrix drm stream
     # Encryption stream, need add keyid into m3u8.model.py to support widevine
     for key in m3u8_obj.keys:
         if key is not None:
             print(key.uri)
             print(key.method)
+            if key.method == "AES-128" and vmx_key_patten.match(key.uri):
+                print("It\'s a vmx drm stream.")
+                return None
+            elif key.method == "SAMPLE-AES":
+                print("It\'s a fairplay drm stream.")
+                return None
+            elif key.method == "SAMPLE-AES-CTR":
+                print("It\'s a widevine drm stream.")
+                return None
+            elif key.method == "AES-128" and not vmx_key_patten.match(key.uri):
+                print("It\'s a AES-128 stream,will try to download the keys.")
+                key_uri = key.absolute_uri
+                key_path = key.base_path
+                key_list = [key_uri, key_path]
+                key_list.append(key_list)
+                return key_list
 
+
+def segment_map(m3u8_obj):
+    map_segment = []
+    file_base_uri = m3u8_obj.base_uri
     if m3u8_obj.segment_map:
         map_segment_uri = file_base_uri + m3u8_obj.segment_map['uri']  # get dict m3u8_obj.segment_map's value of  key 'uri'
         print(map_segment_uri)
@@ -139,13 +155,38 @@ def parse_stream_files(uri):
 
         if 'byterange' in m3u8_obj.segment_map:
             print("It's a byterange list.")
-            return map_segment
+            byterange = True
         else:
-            print("It's not a byterange list.")
-            return map_segment, segments_list
-
+            byterange = False
+        return map_segment, byterange
     else:
-        return segments_list
+        return None
+
+
+def stream_type(m3u8_obj):
+    if m3u8_obj.is_endlist:
+        print("It\'s a vod stream.")
+    else:
+        print("It\'s a live stream.")
+
+
+def parse_stream_files(uri):
+    all_list = []
+    m3u8_obj = m3u8.load(uri)
+    stream_type(m3u8_obj)
+    segments(m3u8_obj)
+
+    if segment_map(m3u8_obj) is not None:
+        all_list.append(segment_map(m3u8_obj)[0])
+        if not segment_map(m3u8_obj)[1]:
+            all_list.append(segments(m3u8_obj))
+    else:
+        all_list.append(segments(m3u8_obj))
+
+    if key(m3u8_obj) is not None:
+        all_list.append(key(m3u8_obj))
+
+    return all_list
 
 def get_segments_list(uri):
     all_m3u8_lists = parse_master_playlist(uri)
@@ -185,4 +226,4 @@ def download_segment(uri):
 
 
 if __name__ == '__main__':
-    get_segments_list("https://storage.googleapis.com/shaka-demo-assets/angel-one-widevine-hls/playlist_v-0576p-1400k-libx264.mp4.m3u8")
+    get_segments_list("https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_adv_example_hevc/v18/prog_index.m3u8")
