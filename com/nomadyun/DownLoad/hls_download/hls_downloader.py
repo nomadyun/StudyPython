@@ -156,7 +156,7 @@ def Enc_key(m3u8_obj):
                 print("It\'s a AES-128 stream,will try to download the key.")
                 key_uri = key.absolute_uri
                 key_path = key.base_path
-                key__uri_list = [key_uri,key_path]
+                key__uri_list = [key_uri, key_path]
                 key_list.append(key__uri_list)
                 return key_list
     else:
@@ -210,16 +210,39 @@ def parse_stream_files(uri):
 
 def get_segments_list(uri):
     all_m3u8_lists = parse_master_playlist(uri)
+    all_segments = []
     if type(all_m3u8_lists).__name__ == 'tuple':  # tuple (playlists, iframe_playlists, media_lists)
+        print(all_m3u8_lists)
         for sub_m3u8_lists in all_m3u8_lists:
-            for each_m3u8_url in sub_m3u8_lists:
-                print(each_m3u8_url)
+            for each_m3u8 in sub_m3u8_lists:
+                print(each_m3u8)
+                each_m3u8_url = each_m3u8[0]
+                each_m3u8_path = each_m3u8[1]
                 if is_m3u8_file(each_m3u8_url):
-                    parse_stream_files(each_m3u8_url)
-                    print(parse_stream_files(each_m3u8_url))
+                    segment_dl_list = []
+                    segment_list = parse_stream_files(each_m3u8_url)
+                    for each_segment_list in segment_list:
+                        if isinstance(each_segment_list[0], list):
+                            for each_segment in each_segment_list:
+                                each_segment_path = each_segment[1]
+                                each_segment_dl_path = os.path.join(each_m3u8_path, each_segment_path)
+                                print(each_segment_dl_path)
+                                segment = [each_segment[0], each_segment_dl_path]
+                                segment_dl_list.append(segment)
+                                all_segments.append(segment_dl_list)
+                        else:
+                            each_segment_path = each_segment_list[1]
+                            each_segment_dl_path = os.path.join(each_m3u8_path, each_segment_path)
+                            segment = [each_segment_list[0], each_segment_dl_path]
+                            segment_dl_list.append(segment)
+                            all_segments.append(segment_dl_list)
+        print(all_segments)
+        return all_segments
     else:
         # if not variant m3u8
-        print(parse_stream_files(all_m3u8_lists))
+        all_segments = parse_stream_files(all_m3u8_lists)
+        print(all_segments)
+        return all_segments
 
 # class downloader(threading.Thread):
 #     def __init__(self, uri, file_name):
@@ -228,7 +251,7 @@ def get_segments_list(uri):
 #         self.file_name = file_name
 
 
-def check_dir(path):
+def check_dir(path, name):
     # prepare download directory
     if not os.path.exists(path):
         try:
@@ -236,16 +259,18 @@ def check_dir(path):
         except OSError as e:
             print(e.errno)
     os.chdir(path)
-    print(('The file will be downloaded to:' + '' + os.getcwd()))
+    print(('The file ' + name + ' will be downloaded to:' + '' + os.getcwd()))
 
 
 def downloader(uri, dl_path, filename):
-    check_dir(dl_path)
+    check_dir(dl_path, filename)
     urllib.request.urlretrieve(uri, filename)
+    print(filename + ' downlaoding finished.')
 
 
 def download_playlist(uri):
     # download the master m3u8
+    print('Start to downlaod the playlist.')
     master_m3u8_name = os.path.basename(uri)
     uri_path = os.path.dirname(uri)
     split_path = os.path.split(uri_path)
@@ -263,13 +288,31 @@ def download_playlist(uri):
                 each_m3u8_path = each_m3u8[1]
                 each_m3u8_name = os.path.basename(each_m3u8_url)
                 sub_dl_path = os.path.join(master_dl_path, each_m3u8_path)
+                print(sub_dl_path)
                 downloader(each_m3u8_url, sub_dl_path, each_m3u8_name)
 
 
 
-def download_segment(uri):
-    pass
+def download_segments(uri):
+    print('Start to download the segments.')
+    all_segments_list = get_segments_list(uri)
+    uri_path = os.path.dirname(uri)
+    split_path = os.path.split(uri_path)
+    m3u8_base_path = split_path[1]
+    print(m3u8_base_path)
+    master_dl_path = os.path.join(dl_baseDir, m3u8_base_path)
+    for segment_list in all_segments_list:
+        print(segment_list)
+        for segment_dl in segment_list:
+            print(segment_dl)
+            segment_dl_uri = segment_dl[0]
+            sement_name = os.path.basename(segment_dl_uri)
+            segment_path = segment_dl[1]
+            segment_dl_path = os.path.join(master_dl_path, segment_path)
+   #         downloader(segment_dl_uri, segment_dl_path, sement_name)
+
 
 
 if __name__ == '__main__':
-    download_playlist("https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_adv_example_hevc/master.m3u8")
+    # Sdownload_playlist("https://www.rmp-streaming.com/media/hls/fmp4/hevc/playlist.m3u8")
+    download_segments("https://www.rmp-streaming.com/media/hls/fmp4/hevc/playlist.m3u8")
