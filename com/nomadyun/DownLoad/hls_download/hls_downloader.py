@@ -2,21 +2,21 @@
 import validators
 import urllib.request
 import urllib.parse
-from urllib.parse import urlparse
 from urllib.error import URLError
-import requests
 import m3u8
 import os
 import re
 import threading
+import time
 
 dl_baseDir = 'F:\Temp\download_test'
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36'
 }
-url = 'https://www.rmp-streaming.com/media/hls/fmp4/hevc/v270p_fmp4.m3u8'
+url = 'https://www.rmp-streaming.com/media/hls/fmp4/hevc/playlist.m3u8'
 # url = 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_adv_example_hevc/master.m3u8'
+# url = 'http://d3rlna7iyyu8wu.cloudfront.net/skip_armstrong/skip_armstrong_multi_language_subs.m3u8'
 # redirect url
 # url = 'http://live-lh.daserste.de/i/daserste_de@91204/index_2692_av-b.m3u8?sd=10&rebase=on'
 # url = 'http://rr.webtv.telia.com:8090/114_hls_national_geographics_wild'
@@ -74,19 +74,19 @@ def parse_master_playlist(uri):
         variant_m3u8_base_uri = variant_m3u8.base_uri
         print("Master_m3u8_base_uri:" + variant_m3u8_base_uri + '\n')
         print("Start to analyse the Master M3U8 file:")
+
         if variant_m3u8.is_variant:
             print('It\'s a variant m3u8.')
-            playlist_ori_count = 0
-            playlists_ori = []
-            for playlist_ori in variant_m3u8.playlists:
-                playlist_ori_count += 1
-                playlist_uri = playlist_ori.absolute_uri
-                playlist_path = playlist_ori.base_path
-                playlists_ori.append((playlist_uri, playlist_path))
-            print("There are " + str(playlist_ori_count) + " playlist_ori:")
-            playlists = list(set(playlists_ori))
-            playlists.sort(key=playlists_ori.index)
-            print("There are " + str(len(playlists)) + " unique lists.")
+            playlist_count = 0
+            playlists = []
+            for playlist in variant_m3u8.playlists:
+                playlist_uri = playlist.absolute_uri
+                playlist_path = playlist.base_path
+                playlist_tuple = (playlist_uri, playlist_path)
+                if playlist_tuple not in playlists:
+                    playlists.append(playlist_tuple)
+                    playlist_count += 1
+            print("There are " + str(len(playlists)) + " play lists.")
             print(playlists)
         else:
             print("It\'s not a variant m3u8.\n")
@@ -104,15 +104,16 @@ def parse_master_playlist(uri):
         else:
             print("There is no iframe playlist.")
 
-
         if variant_m3u8.media:
             media_list_count = 0
             for media_list in variant_m3u8.media:
                 if media_list.uri:
-                    media_list_count += 1
                     media_list_uri = media_list.absolute_uri
                     media_list_path = media_list.base_path
-                    media_lists.append((media_list_uri, media_list_path))
+                    media_list_tuple = (media_list_uri, media_list_path)
+                    if media_list_tuple not in media_lists:
+                        media_lists.append(media_list_tuple)
+                        media_list_count += 1
             print("There are " + str(media_list_count) + " media lists:")
             print(media_lists)
         else:
@@ -230,12 +231,14 @@ def all_playlists(playlists):
                         each_segment_path = each_segment[1]
                         each_segment_dl_path = os.path.join(sub_playlist_path, each_segment_path)
                         segment = [each_segment[0], each_segment_dl_path]
-                        segment_dl_list.append(segment)
+                        if segment not in segment_dl_list:   # maybe several EXT-X-BYTERANGE for one ts
+                            segment_dl_list.append(segment)
                 else:
                     each_segment_path = each_segment_list[1]
                     each_segment_dl_path = os.path.join(sub_playlist_path, each_segment_path)
                     segment = [each_segment_list[0], each_segment_dl_path]
-                    segment_dl_list.append(segment)
+                    if segment not in segment_dl_list:
+                        segment_dl_list.append(segment)
             playlists_segments.append(segment_dl_list)
     print(playlists_segments)
     return playlists_segments
@@ -245,38 +248,43 @@ def all_playlists(playlists):
 def get_segments_list(uri):
     all_m3u8_lists = parse_master_playlist(uri)
     all_segments_list = []
+    all_segments = []
     if type(all_m3u8_lists).__name__ == 'tuple':  # tuple (playlists, iframe_playlists, media_lists)
         playlists, iframe_playlists, media_lists = all_m3u8_lists
         print(playlists, iframe_playlists, media_lists)
         if len(playlists) >= 1:
             stream_playlists_segments = all_playlists(playlists)
             all_segments_list.append(stream_playlists_segments)
-        if len(iframe_playlists) >= 1:
-            iframe_playlists_segments = all_playlists(iframe_playlists)
-            all_segments_list.append(iframe_playlists_segments)
-        if len(media_lists) >= 1:
-            media_playlists_segments = all_playlists(media_lists)
-            all_segments_list.append(media_playlists_segments)
+            if len(iframe_playlists) >= 1:
+                iframe_playlists_segments = all_playlists(iframe_playlists)
+                for iframe_playlist_segments in iframe_playlists_segments:
+                    if iframe_playlist_segments not in stream_playlists_segments:
+                        all_segments_list.append(iframe_playlist_segments)
+                    else:
+                        print("iframe segments are byterange of stream segments")
+            if len(media_lists) >= 1:
+                media_playlists_segments = all_playlists(media_lists)
+                all_segments_list.append(media_playlists_segments)
         for sub_segments_list in all_segments_list:
             for segments_list in sub_segments_list:
                 for segment in segments_list:
                     print(segment)
+                    all_segments.append(segment)
     #    print(all_segments)
-        return all_segments_list
+        return all_segments
     else:
         # if not variant m3u8
-        all_segments_list = []
         playlist = all_m3u8_lists
         segments_list = parse_playlist(playlist)
         for each_segment_list in segments_list:
             if isinstance(each_segment_list[0], list):
                 for each_segment in each_segment_list:
-                    all_segments_list.append(each_segment)
+                    all_segments.append(each_segment)
             else:
-                all_segments_list.append(each_segment_list)
-        for segment in all_segments_list:
+                all_segments.append(each_segment_list)
+        for segment in all_segments:
             print(segment)
-        return all_segments_list
+        return all_segments
 
 # class downloader(threading.Thread):
 #     def __init__(self, uri, file_name):
@@ -328,26 +336,58 @@ def download_playlist(uri):
                 sub_dl_path = os.path.join(master_dl_path, each_m3u8_path)
                 print(sub_dl_path)
                 downloader(each_m3u8_url, sub_dl_path, each_m3u8_name)
-
+            #     t = DownLoader(each_m3u8_url, sub_dl_path, each_m3u8_name)
+            #     threads.append(t)
+            #     t.start()
 
 
 def download_segments(uri):
     print('Start to download the segments.')
     master_dl_path, master_m3u8_name = master_m3u8_path(uri)
-    all_segments_list = get_segments_list(uri)
-    for segment_list in all_segments_list:
-        print(segment_list)
-        for segment_dl in segment_list:
-            print(segment_dl)
-            segment_dl_uri = segment_dl[0]
-            sement_name = os.path.basename(segment_dl_uri)
-            segment_path = segment_dl[1]
-            segment_dl_path = os.path.join(master_dl_path, segment_path)
-   #         downloader(segment_dl_uri, segment_dl_path, sement_name)
+    all_segments = get_segments_list(uri)
+    for segment_dl in all_segments:
+      #  print(segment_dl)
+        segment_dl_uri = segment_dl[0]
+        sement_name = os.path.basename(segment_dl_uri)
+        segment_path = segment_dl[1]
+        segment_dl_path = os.path.join(master_dl_path, segment_path)
+        #  downloader(segment_dl_uri, segment_dl_path, sement_name)
+        t = DownLoader(segment_dl_uri, segment_dl_path, sement_name)
+        threads.append(t)
+        t.start()
+
+
+class DownLoader(threading.Thread):
+    def __init__(self, uri, dl_path, filename):
+        threading.Thread.__init__(self)
+        self.uri = uri
+        self.dl_path = dl_path
+        self.filename = filename
+
+    def run(self):
+        semlock.acquire()
+        lock.acquire()
+        check_dir(self.dl_path, self.filename)
+        lock.release()
+        print(('downloading %s' % self.uri))
+        urllib.request.urlretrieve(self.uri, self.filename)
+        print(self.dl_path + self.filename + ' downloading finished.\n')
+        semlock.release()
+        time.sleep(1)
 
 
 
+threads = []
+lock = threading.Lock()
+maxconnections = 5
+semlock = threading.BoundedSemaphore(maxconnections)
 if __name__ == '__main__':
-    # download_playlist("https://www.rmp-streaming.com/media/hls/fmp4/hevc/playlist.m3u8")
-   get_segments_list("https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_adv_example_hevc/master.m3u8")
-  #  get_segments_list('https://www.rmp-streaming.com/media/hls/fmp4/hevc/playlist.m3u8')
+    # download_playlist("http://d3rlna7iyyu8wu.cloudfront.net/skip_armstrong/skip_armstrong_multi_language_subs.m3u8")
+    # maxconnections = 5
+    # semlock = threading.BoundedSemaphore(maxconnections)
+    # download_segments("http://d3rlna7iyyu8wu.cloudfront.net/skip_armstrong/skip_armstrong_multi_language_subs.m3u8")
+    # for t in threads:
+    #     t.join()
+
+    get_segments_list('http://d3rlna7iyyu8wu.cloudfront.net/skip_armstrong/skip_armstrong_multi_language_subs.m3u8')
+
