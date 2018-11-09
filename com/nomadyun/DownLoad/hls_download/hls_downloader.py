@@ -9,7 +9,8 @@ import re
 import threading
 import time
 
-dl_baseDir = 'F:\Temp\download_test'
+dl_basedir = 'F:\Temp\download_test'
+url_patten = re.compile(r'http(s?)://.*')
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36'
@@ -33,6 +34,7 @@ def is_url(uri):
 
 
 def available_url(uri):
+    m3u8_end_url = re.compile(r'http(s?)://.+/.*.m3u8$')
     if is_url(uri):
         try:
             req = urllib.request.Request(uri, headers=headers)
@@ -40,7 +42,15 @@ def available_url(uri):
             final_url = response.geturl()  # get the real url
             print('Final Url:' + final_url)
             content = response.read()
-            return final_url, content
+            match = m3u8_end_url.match(final_url)
+            if not match:
+                print('Try to get the m3u8 file name.')
+                url_split = urllib.parse.urlsplit(final_url)
+                joined_url = url_split.scheme + url_split.netloc + url_split.path
+                print(joined_url)
+            else:
+                joined_url = final_url
+            return final_url, content, joined_url
         except URLError as e:
             if hasattr(e, 'code'):
                 print('The server couldn\'t fulfill the request.' + uri)
@@ -301,7 +311,7 @@ def check_dir(path, name):
         except OSError as e:
             print(e.errno)
     os.chdir(path)
-    print(('The file ' + name + ' will be downloaded to:' + '' + os.getcwd()))
+    print(('The file ' + name + ' will be downloaded to:' + '' + os.getcwd()) + "\n")
 
 
 def downloader(uri, dl_path, filename):
@@ -311,18 +321,55 @@ def downloader(uri, dl_path, filename):
 
 
 def master_m3u8_path(uri):
+    uri = available_url(uri)[2]
     master_m3u8_name = os.path.basename(uri)
     uri_path = os.path.dirname(uri)
     split_path = os.path.split(uri_path)
     m3u8_base_path = split_path[1]
     print(m3u8_base_path)
-    master_dl_path = os.path.join(dl_baseDir, m3u8_base_path)
+    master_dl_path = os.path.join(dl_basedir, m3u8_base_path)
 
     return master_dl_path, master_m3u8_name
 
+
+def rewrite_m3u8(uri):
+    master_dl_path, master_m3u8_name = master_m3u8_path(uri)
+    match = url_patten.match(uri)
+    m3u8_content = available_url(uri)[1]
+    os.chdir(master_dl_path)
+    f = open(master_m3u8_name, 'wb')
+    content_lines = m3u8_content.readline()
+
+    if not os.path.exists(master_dl_path):
+        try:
+            os.makedirs(master_dl_path)
+        except OSError as e:
+            print(e.errno)
+
+    for line in content_lines:
+        if match:
+            match_m3u8_url = match.group()
+            if is_m3u8_file(line):
+                m3u8_url = available_url(line)[2]
+                m3u8_name = os.path.basename(m3u8_url)
+                line = line.replace(match_m3u8_url, m3u8_name)
+                try:
+                    f.write(line)
+                except os.error:
+                    print("Write file failed")
+        else:
+            try:
+                f.write(line)
+            except os.error:
+                print("Write file failed")
+
+
+
+
+
 def download_playlist(uri):
     # download the master m3u8
-    print('Start to downlaod the playlist.')
+    print('Start to download the playlist.')
     master_dl_path, master_m3u8_name = master_m3u8_path(uri)
     downloader(uri, master_dl_path, master_m3u8_name)
     all_playlists = parse_master_playlist(uri)
@@ -351,13 +398,20 @@ def download_segments(uri):
         sement_name = os.path.basename(segment_dl_uri)
         segment_path = segment_dl[1]
         segment_dl_path = os.path.join(master_dl_path, segment_path)
-        #  downloader(segment_dl_uri, segment_dl_path, sement_name)
-        t = DownLoader(segment_dl_uri, segment_dl_path, sement_name)
-        threads.append(t)
-        t.start()
+        #check_dir(segment_dl_path, sement_name)
+        downloader(segment_dl_uri, segment_dl_path, sement_name)
+        # t = DownLoader(segment_dl_uri, segment_dl_path, sement_name)
+        # t.start()
+        # threads.append(t)
+
+
+threads = []
+maxconnections = 10
+semlock = threading.BoundedSemaphore(maxconnections)
 
 
 class DownLoader(threading.Thread):
+    # lock = threading.Lock()
     def __init__(self, uri, dl_path, filename):
         threading.Thread.__init__(self)
         self.uri = uri
@@ -365,29 +419,31 @@ class DownLoader(threading.Thread):
         self.filename = filename
 
     def run(self):
-        semlock.acquire()
-        lock.acquire()
-        check_dir(self.dl_path, self.filename)
-        lock.release()
         print(('downloading %s' % self.uri))
-        urllib.request.urlretrieve(self.uri, self.filename)
+        try:
+            urllib.request.urlretrieve(self.uri, self.filename)
+        except URLError as e:
+            if hasattr(e, 'code'):
+                print('The server couldn\'t fulfill the request.' + self.uri)
+                print(('HTTPError code: ', e.code))
+            elif hasattr(e, 'reason'):
+                print('Failed to reach the server.' + self.uri)
+                print(('URLError: ', e.reason))
+                print("Retry it.")
+                urllib.request.urlretrieve(self.uri, self.filename)
+
         print(self.dl_path + self.filename + ' downloading finished.\n')
         semlock.release()
-        time.sleep(1)
 
 
 
-threads = []
-lock = threading.Lock()
-maxconnections = 5
-semlock = threading.BoundedSemaphore(maxconnections)
+
+
 if __name__ == '__main__':
-    # download_playlist("http://d3rlna7iyyu8wu.cloudfront.net/skip_armstrong/skip_armstrong_multi_language_subs.m3u8")
-    # maxconnections = 5
-    # semlock = threading.BoundedSemaphore(maxconnections)
-    # download_segments("http://d3rlna7iyyu8wu.cloudfront.net/skip_armstrong/skip_armstrong_multi_language_subs.m3u8")
+  #  download_playlist("http://d3rlna7iyyu8wu.cloudfront.net/skip_armstrong/skip_armstrong_multi_language_subs.m3u8")
+#    download_segments("http://d3rlna7iyyu8wu.cloudfront.net/skip_armstrong/skip_armstrong_multi_language_subs.m3u8")
     # for t in threads:
     #     t.join()
 
-    get_segments_list('http://d3rlna7iyyu8wu.cloudfront.net/skip_armstrong/skip_armstrong_multi_language_subs.m3u8')
-
+  #  get_segments_list('http://d3rlna7iyyu8wu.cloudfront.net/skip_armstrong/skip_armstrong_multi_language_subs.m3u8')
+    download_playlist('http://rr.webtv.telia.com:8090/114_hls_national_geographics_wild')
